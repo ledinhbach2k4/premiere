@@ -63,7 +63,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
-        <RouterProvider router={router} />
+        <RouterProvider router={router}/>
       </ThemeProvider>
     </StyledEngineProvider>
   </StrictMode>

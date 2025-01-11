@@ -105,7 +105,13 @@ export default function NavBar() {
                 Trang cá nhân
               </Typography>
             </MenuItem>
-            <MenuItem key={"logout"}>
+            <MenuItem
+              key={"logout"}
+              onClick={() => {
+                handleCloseUserMenu();
+                navigate("/login");
+              }}
+            >
               <Typography sx={{ textAlign: "center" }}>Đăng xuất</Typography>
             </MenuItem>
           </Menu>
