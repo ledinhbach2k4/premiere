@@ -7,60 +7,42 @@ import {
   InputBase,
   Avatar,
   Container,
+  IconButton,
+  Menu,
+  TextField,
+  Input,
 } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import MenuIcon from "@material-ui/icons/Menu";
 import EditIcon from "@material-ui/icons/Edit";
-
-
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  width: "100%",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    [theme.breakpoints.up("sm")]: {
-      width: "12ch",
-      "&:focus": {
-        width: "20ch",
-      },
-    },
-  },
-}));
+import { useLocation, useNavigate } from "react-router";
+import React, { useState } from "react";
 
 export default function NavBar() {
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
   return (
     <Box
       sx={{
-        flexGrow: 1,
         position: "sticky",
         top: 0,
         zIndex: 1,
@@ -73,29 +55,60 @@ export default function NavBar() {
           px: 2,
         }}
       >
-        <Toolbar
-          disableGutters
-        >
-          <Container sx={{ display: "flex", gap: 2, flexDirection: "row", alignItems: "center" }}>
-            <EditIcon/>
-            <MenuItem>
+        <Toolbar disableGutters>
+          <Container
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <EditIcon />
+            <MenuItem onClick={() => navigate("/")}>
               <Typography>Home</Typography>
             </MenuItem>
-            <MenuItem>
+            <MenuItem onClick={() => navigate("/about")}>
               <Typography>About</Typography>
             </MenuItem>
             {/* search */}
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-              />
-            </Search>
+            <Input placeholder="Search" />
           </Container>
-          <Avatar></Avatar>
+          <IconButton onClick={handleOpenUserMenu} className="p-0">
+            <Avatar alt="Mila" src="/mila.webp" />
+          </IconButton>
+
+          <Menu
+            sx={{ mt: "45px" }}
+            id="menu-appbar"
+            anchorEl={anchorElUser}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            open={Boolean(anchorElUser)}
+            onClose={handleCloseUserMenu}
+          >
+            <MenuItem
+              key={"printerlogs"}
+              onClick={() => {
+                handleCloseUserMenu();
+                navigate("/account");
+              }}
+            >
+              <Typography sx={{ textAlign: "center" }}>
+                Trang cá nhân
+              </Typography>
+            </MenuItem>
+            <MenuItem key={"logout"}>
+              <Typography sx={{ textAlign: "center" }}>Đăng xuất</Typography>
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
     </Box>
