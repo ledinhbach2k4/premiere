@@ -45,8 +45,8 @@ export default function Login() {
       >
         <Avatar
           sx={{
-            backgroundColor: "error.main",
-            color: "white",
+            backgroundColor: "secondary.main",
+            color: "secondary",
           }}
         >
           <LockIcon />

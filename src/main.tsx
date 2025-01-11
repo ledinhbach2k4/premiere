@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { Router, RouterProvider } from "react-router";
 import router from "./routers/router";
 import App from "./App.tsx";
-
+import './index.css';
 import {
   createTheme,
   StyledEngineProvider,
