@@ -2,13 +2,14 @@ import React from "react";
 import { Paper, Skeleton, Typography, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Preview(props) {
   const [liked, setLiked] = useState(false);
   const toggleLike = () => {
     setLiked(!liked); // Toggle like state
   };
-
+  const navigate = useNavigate()
   return (
     <>
       <Paper
@@ -21,6 +22,9 @@ export default function Preview(props) {
           flexDirection: "column",
           gap: 1,
           position: "relative",
+        }}
+        onClick={() => {
+          navigate(`/template/${props.templateId}`)
         }}
       >
         <Skeleton variant="rectangular" height={"100%"} />

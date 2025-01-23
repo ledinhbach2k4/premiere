@@ -12,6 +12,7 @@ import Preview from "../components/Preview";
 import Card from "@mui/material";
 import { useState } from "react";
 import AddIcon from "@mui/icons-material/Add"; // "+" icon
+import { Navigate } from "react-router-dom";
 
 const mockData = [
   {
@@ -64,7 +65,7 @@ export default function Home() {
     setChips((chips) => chips.filter((chip) => chip != chipToDelete));
   };
   const handleAddChip = () => {
-    if (chips.length >= 5) return; 
+    if (chips.length >= 5) return;
     setChips((chips) => [...chips, `Deletable ${chips.length + 1}`]); // Add new chip
   };
 
@@ -93,7 +94,14 @@ export default function Home() {
           <Tab value="Nổi bật" label="Nổi bật" />
           <Tab value="Mới nhất" label="Mới nhất" />
         </Tabs>
-        <Box sx={{ display: "flex", gap: 3, flexDirection: "row", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 3,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
           <Stack direction="row" spacing={1}>
             {chips.map((chip, index) => (
               <Chip
@@ -115,6 +123,7 @@ export default function Home() {
           flexWrap: "wrap",
           justifyContent: "center",
         }}
+        onClick={() => Navigate("/product")}
       >
         {mockData.map((data, index) => (
           <Preview key={index} heading={data.heading} body={data.body} />

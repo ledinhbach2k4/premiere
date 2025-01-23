@@ -5,6 +5,8 @@ import App from "../App";
 import About from "../screens/About";
 import Login from "../screens/auth/Login";
 import Account from "../screens/Account";
+import Template from "../screens/Template";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -22,6 +24,10 @@ const router = createBrowserRouter([
         path: "/account",
         element: <Account />,
       },
+      {
+        path: "/template/:id",
+        element: <Template/>,
+      }
     ],
   },
   {
