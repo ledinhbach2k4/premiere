@@ -22,14 +22,15 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google"; // Import a Google icon
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import LoginButton from "../../components/LoginButton";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
   return (
     <Box sx={{ backgroundColor: "background.default" }}>
       <Container
@@ -86,15 +87,8 @@ export default function Login() {
           Login
         </Button>
         <Divider sx={{ width: "100%", color: "text.primary" }}> OR </Divider>
-        <Button
-          variant="contained"
-          startIcon={<GoogleIcon />}
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Login with Google
-        </Button>
+        <LoginButton />
+        
       </Container>
     </Box>
   );

@@ -7,64 +7,24 @@ import { createRoot } from "react-dom/client";
 import { Router, RouterProvider } from "react-router";
 import router from "./routers/router";
 import App from "./App.tsx";
-import './index.css';
-import {
-  createTheme,
-  StyledEngineProvider,
-  ThemeProvider,
-} from "@mui/material";
+import "./index.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#d280ff",
-    },
-    secondary: {
-      main: "#5a3199",
-    },
-    text: {
-      primary: "#e2b2dc",
-      secondary: "#7a4697",
-    },
-    background: {
-      default: "#190042",
-      paper: "#370554",
-    },
-    error: {
-      main: "#bf3a3a",
-    },
-    warning: {
-      main: "#c38427",
-      light: "#a46d23",
-    },
-    info: {
-      main: "#268fbd",
-    },
-    success: {
-      main: "#5aa65d",
-    },
-  },
-  typography: {
-    fontFamily: "roboto",
-    h3: {
-      color: "#e2b2dc", // or use palette.text.primary
-    },
-    body1: {
-      color: "#e2b2dc",
-    },
-    body2: {
-      color: "#7a4697", // Secondary body text color
-    },
-  },
-});
+import { StyledEngineProvider, ThemeProvider } from "@mui/material";
+import theme from "./theme/theme";
+
+// use .env
+const clientId = import.meta.env.VITE_CLIENT_ID;
+const clientSecret = import.meta.env.VITE_CLIENT_SECRET;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <RouterProvider router={router}/>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <GoogleOAuthProvider clientId={clientId}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </GoogleOAuthProvider>
   </StrictMode>
 );
