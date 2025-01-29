@@ -7,21 +7,23 @@ import User from "../model/user";
 import { Request, Response } from "express";
 
 
-// GET ALL USER
 export const getListUser = async (req: Request, res: Response) => {
   try {
-    console.log("getlistUser");
+    const result = await User.find(); 
 
     res.status(200).json({
-      message: "List",
+      message: "List of users retrieved successfully",
+      data: result, 
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error get All User",
+      message: "Error retrieving all users",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
+
+
 // DELETE ALL USERS
 export const deleteAllUser = async (req: Request, res: Response) => {
   try {
@@ -44,13 +46,15 @@ export const addUser = async (req: Request, res: Response) => {
 
   try {
     const savedUser = await newUser.save(); // Save the new user to the database
-    const responseUser  = {
+    res.status(201).json({
       username: savedUser.username,
       email: savedUser.email,
-    };
-    res.status(201).json(responseUser);
+    });
 
   } catch (error) {
-  
+    res.status(500).json({
+      message: "Error adding users",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };

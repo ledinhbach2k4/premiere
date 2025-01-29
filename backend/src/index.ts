@@ -2,7 +2,7 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swaggerConfig';
 import userRoutes from './routes/userRoutes';
-import testRouter from './routes/testRoutes'
+import tagRoutes from './routes/tagRoutes';
 import { connectDB } from './config/DBconnect';
 import dotenv from  "dotenv";
 import bodyParser from "body-parser";
@@ -23,7 +23,7 @@ app.use(express.static("public"));
 
 // Register routes  
 app.use('/', userRoutes);
-app.use('/', testRouter); 
+app.use('/', tagRoutes);
 
 // Start the server
 app.listen(PORT, () => {

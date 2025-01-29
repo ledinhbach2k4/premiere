@@ -1,6 +1,11 @@
 /**
- * W ROUTE CHO NGƯỜI DÙNG
+ * ROUTE CHO NGƯỜI DÙNG
  * userRoutes.ts SỬ DỤNG ĐỂ DỄ THAO TÁC VÀ QUẢN LÝ BẰNG SWAGGER
+ * 
+ * @swagger
+ * tags:
+ *  name: user
+ *  description: Everything about your User
  * 
  */
 
@@ -13,6 +18,8 @@ const router = express.Router();
  * @swagger
  * /getListUsers:
  *   get:
+ *     tags: 
+ *      - user
  *     summary: Retrieve a list of users
  *     responses:
  *       200:
@@ -25,6 +32,8 @@ router.get('/getListUsers', getListUser );
  * @swagger
  * /users:
  *   post:
+ *     tags: 
+ *      - user
  *     summary: Add user to db
  *     requestBody:
  *       required: true
@@ -37,7 +46,7 @@ router.get('/getListUsers', getListUser );
  *               - email
  *               - password
  *             properties:
- *               username:
+ *               username:  
  *                 type: string
  *               email:
  *                 type: string
@@ -53,6 +62,8 @@ router.post('/users', addUser);
  * @swagger
  * /deleteAllUsers:
  *   delete:
+ *     tags: 
+ *      - user
  *     summary: Delete all users
  *     responses:
  *       200:
