@@ -1,5 +1,5 @@
 /**
- * THÊM ROUTE VÀO CHO NGƯỜI DÙNG
+ * W ROUTE CHO NGƯỜI DÙNG
  * userRoutes.ts SỬ DỤNG ĐỂ DỄ THAO TÁC VÀ QUẢN LÝ BẰNG SWAGGER
  * 
  */
@@ -33,12 +33,15 @@ router.get('/getListUsers', getListUser );
  *           schema:
  *             type: object
  *             required:
- *               - name
+ *               - username
  *               - email
+ *               - password
  *             properties:
- *               name:
+ *               username:
  *                 type: string
  *               email:
+ *                 type: string
+ *               password:
  *                 type: string
  *     responses:
  *       201:

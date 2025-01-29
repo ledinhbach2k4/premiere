@@ -5,6 +5,8 @@ import userRoutes from './routes/userRoutes';
 import testRouter from './routes/testRoutes'
 import { connectDB } from './config/DBconnect';
 import dotenv from  "dotenv";
+import bodyParser from "body-parser";
+
 
 dotenv.config();
 const app = express();
@@ -15,6 +17,9 @@ connectDB();
 
 // Middleware to serve Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static("public"));
 
 // Register routes  
 app.use('/', userRoutes);
