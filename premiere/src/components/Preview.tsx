@@ -4,12 +4,16 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Preview(props) {
+export default function Preview(props: { data: { _id: string, title: string, url: string, tags: [string]} }) {
   const [liked, setLiked] = useState(false);
   const toggleLike = () => {
     setLiked(!liked); // Toggle like state
   };
-  const navigate = useNavigate()
+
+  //define the vid model
+  const { _id, title, url, tags } = props.data;
+
+  const navigate = useNavigate();
   return (
     <>
       <Paper
@@ -24,15 +28,21 @@ export default function Preview(props) {
           position: "relative",
         }}
         onClick={() => {
-          navigate(`/template/${props.templateId}`)
+          navigate(`/template/${_id}`);
         }}
       >
         <Skeleton variant="rectangular" height={"100%"} />
-        <Typography variant="h5">{props.heading}</Typography>
-        <Typography variant="body2">{props.body}</Typography>
+        <Typography variant="h5">{title}</Typography>
+        <Typography variant="body2">{tags}</Typography>
         <IconButton
           onClick={toggleLike}
-          sx={{ position: "absolute", bottom: 8, right: 8, opacity: liked ? 1 : 0.5, transition: "opacity 0.3s ease" }}
+          sx={{
+            position: "absolute",
+            bottom: 8,
+            right: 8,
+            opacity: liked ? 1 : 0.5,
+            transition: "opacity 0.3s ease",
+          }}
         >
           <FavoriteIcon color={liked ? "error" : "disabled"} />
         </IconButton>

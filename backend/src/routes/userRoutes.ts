@@ -16,7 +16,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /getListUsers:
+ * /api/getListUsers:
  *   get:
  *     tags: 
  *      - user
@@ -25,13 +25,13 @@ const router = express.Router();
  *       200:
  *         description: A list of users.
  */
-router.get('/getListUsers', getListUser ); 
+router.get('/api/getListUsers', getListUser ); 
 
 
 /**
  * @swagger
- * /users:
- *   post:
+ * /api/addUsers:
+ *   put:
  *     tags: 
  *      - user
  *     summary: Add user to db
@@ -56,11 +56,11 @@ router.get('/getListUsers', getListUser );
  *       201:
  *         description: Add a User.
  */
-router.post('/users', addUser);
+router.put('/api/addUsers', addUser);
 
 /**
  * @swagger
- * /deleteAllUsers:
+ * /api/deleteAllUsers:
  *   delete:
  *     tags: 
  *      - user
@@ -69,7 +69,7 @@ router.post('/users', addUser);
  *       200:
  *         description: All users deleted successfully.
  */
-router.delete('/deleteAllUsers', deleteAllUser ); // Complete the route for deleting all users
+router.delete('/api/deleteAllUsers', deleteAllUser ); // Complete the route for deleting all users
 
 
 export default router;

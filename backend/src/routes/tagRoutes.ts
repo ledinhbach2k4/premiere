@@ -15,8 +15,8 @@ const router = express.Router();
 
 /**
  * @swagger
- * /addTag:
- *   post:
+ * /api/addTag:
+ *   put:
  *     tags: 
  *      - tag
  *     summary: Add a new tag
@@ -35,11 +35,11 @@ const router = express.Router();
  *       201:
  *         description: Tag added successfully
  */
-router.post('/addTag', addTag ); 
+router.put('/api/addTag', addTag ); 
 
 /**
  * @swagger
- * /deleteTagByID:
+ * /api/deleteTagByID:
  *   delete:
  *     tags: 
  *      - tag
@@ -59,6 +59,6 @@ router.post('/addTag', addTag );
  *       201:
  *         description: Tag added successfully
  */
-router.delete('/deleteTagByID', deleteTagByID ); 
+router.delete('/api/deleteTagByID', deleteTagByID ); 
 
 export default router;

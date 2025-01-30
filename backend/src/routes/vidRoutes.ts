@@ -9,14 +9,14 @@
 
 
 import express from 'express';
-import { addVid, deleteVidById } from '../controller/vidDAO';
+import { addVid, deleteVidById, getNext10Vid } from '../controller/vidDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 const router = express.Router();
 
 /**
  * @swagger
- * /addVid:
- *   post:
+ * /api/addVid:
+ *   put:
  *     tags: 
  *      - VIDEO
  *     summary: Add a new Video
@@ -45,11 +45,11 @@ const router = express.Router();
  *       400:
  *         description: bad request! video cannot be added.
  */
-router.post('/addVid', addVid ); 
+router.put('/api/addVid', addVid ); 
 
 /**
  * @swagger
- * /deleteVid   ByID:
+ * /api/deleteVidByID:
  *   delete:
  *     tags: 
  *      - VIDEO
@@ -69,6 +69,29 @@ router.post('/addVid', addVid );
  *       201:
  *         description: Tag added successfully
  */
-router.delete('/deleteVidByID', deleteVidById ); 
+router.delete('/api/deleteVidByID', deleteVidById ); 
+
+/**
+ * @swagger
+ * /api/getNext10Vid:
+ *   get:
+ *     tags: 
+ *      - VIDEO
+ *     summary: get next 10 video
+ *     parameters:
+ *       - in: query
+ *         name: index
+ *         required: false
+ *         description: The starting index for fetching videos. Defaults to 0 if not provided.
+ *         schema:
+ *           type: integer
+ *           example: 0
+ *     responses:
+ *       200:
+ *         description: get next 10 video successfully
+ *       400:
+ *         description: bad request! video cannot be listed.
+ */
+router.get('/api/getNext10Vid', getNext10Vid ); 
 
 export default router;

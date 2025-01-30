@@ -6,8 +6,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const uri =
-  "mongodb+srv://doducduong0001:BIgSYrBPdeFRE8eT@cluster0.jja7n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI || "mongodb+srv://doducduong0001:BIgSYrBPdeFRE8eT@cluster0.jja7n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 const clientOptions = {
   serverApi: {

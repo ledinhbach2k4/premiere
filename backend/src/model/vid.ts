@@ -8,15 +8,15 @@ import { Schema } from "mongoose";
 const vidSchema = new mongoose.Schema({
   title: {
     type: String,
-    require: true,
+    required: true,
   },
   url: {
     type: String,
     require: true,
   },
   tags: {
-    type: [String],
-    require: true, 
+    type: [Schema.Types.ObjectId], // Use ObjectId to reference Tag model
+    ref: "Tag", // Reference to the Tag model
   },
 });
 

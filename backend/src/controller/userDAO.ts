@@ -6,7 +6,7 @@
 import User from "../model/user";
 import { Request, Response } from "express";
 
-
+// get list of all user
 export const getListUser = async (req: Request, res: Response) => {
   try {
     const result = await User.find(); 
