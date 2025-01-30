@@ -29,17 +29,17 @@ export const deleteTagByID = async (req: Request, res: Response) => {
   if(!isObjectIdOrHexString(_id)) {
     res.status(400).json({
         message: "_id is not instance of a Objectid"
-    })
+    });
   }
 
   try {
     const result = await Tag.findByIdAndDelete(_id); // Use the id directly without curly braces
 
     res.status(200).json({ 
-        message: _id,
-        
+        message: "deleted sucessfully!",
         result  
     });
+    
   } catch (error) {
     console.error(error); // Log the error for debugging
     res.status(500).json({ 

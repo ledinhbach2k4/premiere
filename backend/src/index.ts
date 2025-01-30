@@ -3,6 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swaggerConfig';
 import userRoutes from './routes/userRoutes';
 import tagRoutes from './routes/tagRoutes';
+import vidRoutes from './routes/vidRoutes';
 import { connectDB } from './config/DBconnect';
 import dotenv from  "dotenv";
 import bodyParser from "body-parser";
@@ -24,6 +25,7 @@ app.use(express.static("public"));
 // Register routes  
 app.use('/', userRoutes);
 app.use('/', tagRoutes);
+app.use('/',vidRoutes);
 
 // Start the server
 app.listen(PORT, () => {

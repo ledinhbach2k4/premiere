@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'LaDu',
+      title: 'API Document',
       version: '1.0.0',
-      description: 'API documentation for my project',
+      description: 'API documentation for Premiere Template Website',
     },
   },
   apis: ['./src/routes/*.ts'], // Path to your route files

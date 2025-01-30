@@ -6,11 +6,6 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 const vidSchema = new mongoose.Schema({
-  vid_id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   title: {
     type: String,
     require: true,
