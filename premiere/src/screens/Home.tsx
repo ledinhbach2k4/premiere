@@ -12,7 +12,7 @@ import Preview from "../components/Preview";
 import Card from "@mui/material";
 import { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add"; // "+" icon
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Home() {
@@ -20,13 +20,19 @@ export default function Home() {
   const [chips, setChips] = useState(["Deletable 1", "Deletable 2"]);
   const [mockData, setMockData] = useState([]);
   const [numberOfVid, setNumberOfVid] = useState(0);
+  const navigate = useNavigate();
 
 
+  // get 9 video from database
   const fetchTemplates = async () => {
     try {
       const response = await axios.get(`/api/getNext10Vid?index=${numberOfVid}`);
       setMockData(response.data.result || []);
-      setNumberOfVid((prev) => prev + 10);
+      /**
+       *  append next 9 video
+       *  to do
+       */
+
     } catch (error) {
       console.error("Error fetching templates:", error);
     }
@@ -99,11 +105,10 @@ export default function Home() {
           flexWrap: "wrap",
           justifyContent: "center",
         }}
-        onClick={() => Navigate("/product")}
       >
         {mockData.length > 0 ? (
           mockData.map((data) => (
-            <Preview data={data} /> // Use data._id as the unique key
+            <Preview key={ data._id } data={data} /> // Use data._id as the unique key
           ))
         ) : (
           <Typography>No videos available.</Typography> // Message when no videos are available

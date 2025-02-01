@@ -2,17 +2,24 @@
 import PreviewPanel from "../components/PreviewPanel";
 import EditPanel from "../components/EditPanel";
 import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useParams } from 'react-router-dom';
 
-export default function Template(
-  // props
-) {
-  const [props, setProps] = useState({});
+export default function Template() {
+
+  const { _id } = useParams<string>(); // id có thể là undefine nhưng không biết sửa sao cho hết đỏ
+
+  const safe_id = _id?.replace(":",""); // xoá dấu : ở _id
+
+  const [vidProps, setVidProps] = useState< {} >({});
+
 
   return (
+    <>
     <Box sx={{display: 'flex', justifyContent: 'space-between'}} >
-      <PreviewPanel props={props}/>
-      <EditPanel props={props} setProps={setProps}/>
+      <PreviewPanel _id = { safe_id }  vidProps = { vidProps }/>
+      {/* <EditPanel props={ _id } setProps={ setVidProps }/> */}
     </Box>
+    </>
   );
 }
