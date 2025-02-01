@@ -6,9 +6,45 @@
 	"scene":0,
 	"scenes":[
 		{
+			"extras":{
+				"mcprep_skins_list":[
+					{
+						"label":"alex.png skin",
+						"description":"alex.png skin",
+						"name":"alex.png"
+					},
+					{
+						"label":"redshirt.png skin",
+						"description":"redshirt.png skin",
+						"name":"redshirt.png"
+					},
+					{
+						"label":"steve.png skin",
+						"description":"steve.png skin",
+						"name":"steve.png"
+					},
+					{
+						"label":"template-skin.png skin",
+						"description":"template-skin.png skin",
+						"name":"template-skin.png"
+					},
+					{
+						"label":"theduckcow.png skin",
+						"description":"theduckcow.png skin",
+						"name":"theduckcow.png"
+					},
+					{
+						"label":"thekindkitten.png skin",
+						"description":"thekindkitten.png skin",
+						"name":"thekindkitten.png"
+					}
+				],
+				"mcprep_props":{}
+			},
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -21,6 +57,33 @@
 				0,
 				0
 			]
+		},
+		{
+			"camera":0,
+			"name":"Camera",
+			"rotation":[
+				-0.20997299253940582,
+				0.3857799470424652,
+				0.09062844514846802,
+				0.8937962055206299
+			],
+			"translation":[
+				7.358891487121582,
+				4.958309173583984,
+				6.925790786743164
+			]
+		}
+	],
+	"cameras":[
+		{
+			"name":"Camera",
+			"perspective":{
+				"aspectRatio":1.7777777777777777,
+				"yfov":0.39959652046304894,
+				"zfar":100,
+				"znear":0.10000000149011612
+			},
+			"type":"perspective"
 		}
 	],
 	"animations":[
