@@ -3,17 +3,20 @@ import { useGLTF, OrbitControls } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
 
-export default function Model(props: { _id: string; vidProps: {} }) {
+export default function Model(props: {
+  _id: string | undefined;
+  vidProps: {};
+}) {
   // Load model
   const gltf = useGLTF(`/gltf/${props._id}.gltf`);
-  // const gltf = useGLTF(`/test1.gltf`);
+  // mixer cho animation
   const mixer = useRef<THREE.AnimationMixer | null>(null);
+  // set cua chatgpt
   const { set } = useThree();
 
   useEffect(() => {
     if (gltf.cameras.length > 0) {
       const gltfCamera = gltf.cameras[0] as THREE.PerspectiveCamera; // Ép kiểu
-      gltfCamera.manual = true; // Để React Three Fiber không ghi đè camera
       set({ camera: gltfCamera }); // Gán camera từ GLTF vào scene
     }
 
@@ -25,10 +28,11 @@ export default function Model(props: { _id: string; vidProps: {} }) {
       });
     }
 
+    // dừng animation
     return () => {
       mixer.current?.stopAllAction();
     };
-  }, [gltf, set]);
+  }, [gltf, set]); // use effect sẽ chạy nếu có sự thay đổi gltf hoặc set
 
   // Chạy animation mỗi frame
   useFrame((_, delta) => {
@@ -37,6 +41,7 @@ export default function Model(props: { _id: string; vidProps: {} }) {
 
   return (
     <>
+      {/* ánh sáng */}
       <ambientLight intensity={0.5} />
       <directionalLight
         position={[5, 5, 5]}
@@ -45,11 +50,15 @@ export default function Model(props: { _id: string; vidProps: {} }) {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-      <pointLight position={[-5, 5, 5]} intensity={0.8} decay={2} distance={10} />
-      
-      <group scale={[1, 1, 1]}>
-        <primitive object={gltf.scene} />
-      </group>
+      <pointLight
+        position={[-5, 5, 5]}
+        intensity={0.8}
+        decay={2}
+        distance={10}
+      />
+
+      {/* model */}
+      <primitive object={gltf.scene} />
 
       <OrbitControls />
     </>

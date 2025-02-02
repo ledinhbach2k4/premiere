@@ -5,11 +5,9 @@ import {
   Tab,
   Chip,
   Stack,
-  Button,
   IconButton,
 } from "@mui/material";
 import Preview from "../components/Preview";
-import Card from "@mui/material";
 import { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add"; // "+" icon
 import { useNavigate } from "react-router-dom";
@@ -19,7 +17,7 @@ export default function Home() {
   const [selectedTab, setSelectedTab] = useState("Nổi bật");
   const [chips, setChips] = useState(["Deletable 1", "Deletable 2"]);
   const [mockData, setMockData] = useState([]);
-  const [numberOfVid, setNumberOfVid] = useState(0);
+  const [numberOfVid, setNumberOfVid] = useState(0); // will use to set number of index for loadmore function
   const navigate = useNavigate();
 
 
@@ -65,7 +63,7 @@ export default function Home() {
       >
         <Tabs
           value={selectedTab}
-          onChange={(e, newValue) => {
+          onChange={(_e, newValue) => {
             setSelectedTab(newValue);
           }}
           centered
@@ -107,8 +105,8 @@ export default function Home() {
         }}
       >
         {mockData.length > 0 ? (
-          mockData.map((data) => (
-            <Preview key={ data._id } data={data} /> // Use data._id as the unique key
+          mockData.map((data: { _id: string, title: string, url: string, tags: [string]}) => (
+            <Preview key={ data._id } data={ data } /> // Use data._id as the unique key
           ))
         ) : (
           <Typography>No videos available.</Typography> // Message when no videos are available
