@@ -18,29 +18,28 @@ export default function Home() {
   const [tagsData, setTagsData] = useState([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-
   // Fetch videos from the database
   const fetchTemplates = async () => {
-    //tab handle
+    let response;
+
     try {
-      if (selectedTab === "Nổi bật") {
-        const response = await axios.get(
-          `/api/getNext10Vid?index=${numberOfVid}`
-        );
-        setVideoData(response.data.result || []);
-      } else if (selectedTab === "Mới Nhất") {
-        const response = await axios.get(
-          `/api/get9VidSortByLiked?index=${numberOfVid}`
-        );
-        setVideoData(response.data.result || []);
+      // Chip handle  ( filter )
+      response = await axios.get(`/api/getAllTags`);
+      setTagsData(response.data.data);
+
+      const params: any = { index: numberOfVid };
+      if (selectedTags.length > 0) {
+        params.tags = selectedTags;
       }
 
-      // Chip handle  ( filter )
-      const response = await axios.get(`/api/getAllTags`);
-      setTagsData(response.data.data);
-      console.log(selectedTags);
+      //tab handle
+      if (selectedTab === "Nổi bật") {
+        response = await axios.get(`/api/get9VidSortByLiked`, { params });
+      } else if (selectedTab === "Mới nhất") {
+        response = await axios.get(`/api/getNext10Vid`, { params });
+      }
 
-      
+      setVideoData(response.data.data || []);
     } catch (error) {
       console.error("Error fetching templates:", error);
     }
@@ -51,14 +50,12 @@ export default function Home() {
     fetchTemplates(); // Load video template
   }, [selectedTab, numberOfVid, selectedTags]);
 
-  const handleClick = (tagName: string) => {
-    if (selectedTags?.includes(tagName)) {
-      setSelectedTags(selectedTags.filter( (t: string) => t !== tagName));
+  const handleClick = (_id: string) => {
+    if (selectedTags?.includes(_id)) {
+      setSelectedTags(selectedTags.filter((t: string) => t !== _id)); // bỏ tag khỏi danh sách
     } else {
-      setSelectedTags([...selectedTags, tagName]);
+      setSelectedTags([...selectedTags, _id]); // thêm tag vào danh sách
     }
-
-
   };
 
   return (
@@ -97,14 +94,13 @@ export default function Home() {
                       <Chip
                         key={tag._id}
                         label={tag.tagName}
-                        onClick={() => handleClick(tag.tagName)}
+                        onClick={() => handleClick(tag._id)}
                         variant={
-                          selectedTags?.includes(tag.tagName)
+                          selectedTags?.includes(tag._id)
                             ? "outlined"
                             : "filled"
                         } // Change variant based on selection
                       />
-                      
                     </>
                   ))
                 : null}
