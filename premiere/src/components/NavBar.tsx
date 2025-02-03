@@ -4,36 +4,36 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  InputBase,
+  Input,
   Avatar,
   Container,
   IconButton,
   Menu,
-  TextField,
-  Input,
+  Select,
+  SelectChangeEvent,
 } from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
-import SearchIcon from "@material-ui/icons/Search";
-import MenuIcon from "@material-ui/icons/Menu";
-import EditIcon from "@material-ui/icons/Edit";
-import { useLocation, useNavigate } from "react-router";
-import React, { useState } from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router";
+import React, { useContext, useState } from "react";
+import { ThemeContext } from "../contexts/ThemeContext"; // Import Context
 
 export default function NavBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-  const location = useLocation();
+  const themeContext = useContext(ThemeContext);
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
+  if (!themeContext) {
+    throw new Error("NavBar must be used within a ThemeProviderWrapper");
+  }
+
+  const { themeMode, toggleTheme } = themeContext;
+
+  const handleChangeTheme = (event: SelectChangeEvent) => {
+    toggleTheme(event.target.value as "dark" | "light" | "purple");
   };
 
-  const handleOpenUserMenu = (event) => {
+  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-  };
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
@@ -47,6 +47,11 @@ export default function NavBar() {
         top: 0,
         zIndex: 1,
         marginBottom: 2,
+        opacity: 0.5,
+        transition: "opacity 0.3s ease-in-out",
+        "&:hover": {
+          opacity: 1,
+        },
       }}
     >
       <AppBar
@@ -71,10 +76,25 @@ export default function NavBar() {
             <MenuItem onClick={() => navigate("/about")}>
               <Typography>About</Typography>
             </MenuItem>
-            {/* search */}
-            <Input placeholder="Search" />
           </Container>
-          <IconButton onClick={handleOpenUserMenu} className="p-0">
+
+          {/* Chọn theme */}
+          <Select
+            value={themeMode}
+            onChange={handleChangeTheme}
+            sx={{
+              color: "white",
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "white" },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "gray",
+              },
+            }}
+          >
+            <MenuItem value="light">Light</MenuItem>
+            <MenuItem value="dark">Dark</MenuItem>
+            <MenuItem value="purple">Purple</MenuItem>
+          </Select>
+          <IconButton onClick={handleOpenUserMenu}>
             <Avatar alt="Mila" src="/mila.webp" />
           </IconButton>
 
@@ -94,24 +114,12 @@ export default function NavBar() {
             open={Boolean(anchorElUser)}
             onClose={handleCloseUserMenu}
           >
-            <MenuItem
-              key={"printerlogs"}
-              onClick={() => {
-                handleCloseUserMenu();
-                navigate("/account");
-              }}
-            >
+            <MenuItem onClick={() => navigate("/account")}>
               <Typography sx={{ textAlign: "center" }}>
                 Trang cá nhân
               </Typography>
             </MenuItem>
-            <MenuItem
-              key={"logout"}
-              onClick={() => {
-                handleCloseUserMenu();
-                navigate("/login");
-              }}
-            >
+            <MenuItem onClick={() => navigate("/login")}>
               <Typography sx={{ textAlign: "center" }}>Đăng xuất</Typography>
             </MenuItem>
           </Menu>

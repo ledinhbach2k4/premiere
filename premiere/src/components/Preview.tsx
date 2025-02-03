@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 export default function Preview(props: { key: string, data: { _id: string, title: string, url: string, tags: [string]} }) {
 
   const [liked, setLiked] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const toggleLike = () => {
     setLiked(!liked); // Toggle like state
   };
@@ -34,17 +36,20 @@ export default function Preview(props: { key: string, data: { _id: string, title
           navigate(`/template/:${ _id }`);
         }}
       >
-        
-        <Skeleton variant="rectangular" height={"100%"} />
-        <img 
-        src={`/vidPreview/${_id}.gif`} 
-        alt={title} 
-        style={{ 
-          width: '300px', 
-          height: '170px',
-          objectFit: 'cover', 
-        }} 
-      />
+        {!imageLoaded && (
+          <Skeleton variant="rectangular" width={300} height={170} />
+        )}
+        <img
+          src={`/vidPreview/${_id}.gif`}
+          alt={title}
+          style={{
+            width: '300px',
+            height: '170px',
+            objectFit: 'cover',
+            display: imageLoaded ? 'block' : 'none', // Hide image until it's loaded
+          }}
+          onLoad={() => setImageLoaded(true)} // Set imageLoaded to true when the image has loaded
+        />
         <Typography variant="h5">{title}</Typography>
         <Typography variant="body2">{tags}</Typography>
         <IconButton
