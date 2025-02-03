@@ -15,9 +15,8 @@ export default function App() {
         minHeight: "100vh",
       }}
     >
-      {/* Background màn hình TV cũ */}
       <NavBar />
-      <Background />
+      <Background />      {/* Background màn hình TV cũ */}
       <Container
         sx={{
           flex: 1,

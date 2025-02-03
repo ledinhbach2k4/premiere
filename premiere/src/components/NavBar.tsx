@@ -45,7 +45,7 @@ export default function NavBar() {
       sx={{
         position: "sticky",
         top: 0,
-        zIndex: 1,
+        zIndex: 1100,
         marginBottom: 2,
         opacity: 0.5,
         transition: "opacity 0.3s ease-in-out",

@@ -11,7 +11,7 @@ import {
 import Preview from "../components/Preview";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Background from "./Background";
+import "./../theme/VideoListComponent.css";
 
 export default function Home() {
   const [selectedTab, setSelectedTab] = useState<string>("Nổi bật");
@@ -33,7 +33,7 @@ export default function Home() {
       }
 
       let videosResponse;
-      
+
       if (selectedTab === "Nổi bật") {
         videosResponse = await axios.get(`/api/get9VidSortByLiked`, { params });
       } else if (selectedTab === "Mới nhất") {
@@ -41,7 +41,6 @@ export default function Home() {
       }
 
       setVideoData(videosResponse?.data.data || []);
-
     } catch (error) {
       console.error("Error fetching templates:", error);
       setVideoData([]); // Reset video data on error
@@ -68,6 +67,8 @@ export default function Home() {
           sx={{
             p: 3,
             transition: "box-shadow 0.3s ease-in-out",
+            borderRadius: " 45px ",
+            opacity: 0.95,
             "&:hover": {
               boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)", // Add shadow on hover
             },
@@ -95,7 +96,8 @@ export default function Home() {
               indicatorColor="primary"
               sx={{
                 "& .MuiTab-root": {
-                  transition: "color 0.3s ease-in-out, transform 0.3s ease-in-out",
+                  transition:
+                    "color 0.3s ease-in-out, transform 0.3s ease-in-out",
                   "&:hover": {
                     color: "primary.dark", // Change color on hover
                     transform: "scale(1.1)", // Slightly scale up on hover
@@ -148,6 +150,7 @@ export default function Home() {
                   tags: [string];
                 }) => (
                   <Box
+                    className="block"
                     key={data._id}
                     sx={{
                       transition: "transform 0.3s ease-in-out",

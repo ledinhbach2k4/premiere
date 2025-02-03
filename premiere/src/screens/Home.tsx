@@ -13,7 +13,6 @@ export default function Home() {
           margin: "auto",
           width: "100%",
           overflow: "hidden",
-          perspective: "1px",
         }}
       >
         <HomepageIntro />
