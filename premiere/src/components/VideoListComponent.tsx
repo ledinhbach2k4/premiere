@@ -153,7 +153,7 @@ export default function Home() {
                       },
                     }}
                   >
-                    <Preview data={data} />
+                    <Preview key={data._id} data={data} />
                   </Box>
                 )
               )
