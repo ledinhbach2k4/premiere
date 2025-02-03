@@ -1,24 +1,24 @@
-import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  Button,
-  Paper,
-  Chip,
-  Stack,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import VideoListComponent from "../components/VideoListComponent";
 import HomepageIntro from "../components/HomepageIntro";
 
 export default function Home() {
- 
-
   return (
     <>
-      
-      <HomepageIntro />
-      <VideoListComponent />
+      {/* Nội dung trang chủ */}
+      <Box
+        sx={{
+          position: "relative",
+          zIndex: 100,
+          margin: "auto",
+          width: "100%",
+          overflow: "hidden",
+          perspective: "1px",
+        }}
+      >
+        <HomepageIntro />
+        <VideoListComponent />
+      </Box>
     </>
   );
 }

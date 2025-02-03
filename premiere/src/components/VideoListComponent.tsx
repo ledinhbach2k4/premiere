@@ -11,6 +11,7 @@ import {
 import Preview from "../components/Preview";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Background from "./Background";
 
 export default function Home() {
   const [selectedTab, setSelectedTab] = useState<string>("Nổi bật");
@@ -32,6 +33,7 @@ export default function Home() {
       }
 
       let videosResponse;
+      
       if (selectedTab === "Nổi bật") {
         videosResponse = await axios.get(`/api/get9VidSortByLiked`, { params });
       } else if (selectedTab === "Mới nhất") {
@@ -39,6 +41,7 @@ export default function Home() {
       }
 
       setVideoData(videosResponse?.data.data || []);
+
     } catch (error) {
       console.error("Error fetching templates:", error);
       setVideoData([]); // Reset video data on error
