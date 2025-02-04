@@ -4,8 +4,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function Preview(props: { data: { _id: string, title: string, url: string, tags: [string]} }) {
+export default function Preview(props: { key: string, data: { _id: string, title: string, url: string, tags: [string]} }) {
+
   const [liked, setLiked] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const toggleLike = () => {
     setLiked(!liked); // Toggle like state
   };
@@ -16,22 +19,37 @@ export default function Preview(props: { data: { _id: string, title: string, url
   const navigate = useNavigate();
   return (
     <>
+      
       <Paper
         sx={{
           width: 300,
-          height: 250,
+          height: 268.75,
           p: 2,
           m: 1,
           display: "flex",
           flexDirection: "column",
           gap: 1,
           position: "relative",
+          overflow: "hidden", // Ensures content doesn't overflow
         }}
         onClick={() => {
-          navigate(`/template/${_id}`);
+          navigate(`/template/:${ _id }`);
         }}
       >
-        <Skeleton variant="rectangular" height={"100%"} />
+        {!imageLoaded && (
+          <Skeleton variant="rectangular" width={300} height={170} />
+        )}
+        <img
+          src={`/vidPreview/${_id}.gif`}
+          alt={title}
+          style={{
+            width: '300px',
+            height: '170px',
+            objectFit: 'cover',
+            display: imageLoaded ? 'block' : 'none', // Hide image until it's loaded
+          }}
+          onLoad={() => setImageLoaded(true)} // Set imageLoaded to true when the image has loaded
+        />
         <Typography variant="h5">{title}</Typography>
         <Typography variant="body2">{tags}</Typography>
         <IconButton

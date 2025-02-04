@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import { ProtectedRoute } from "./../pages/ProtectedRoutes";
 import Home from "../screens/Home";
 import App from "../App";
 import About from "../screens/About";
@@ -25,7 +24,7 @@ const router = createBrowserRouter([
         element: <Account />,
       },
       {
-        path: "/template/:id",
+        path: "/template/:_id",
         element: <Template/>,
       }
     ],
