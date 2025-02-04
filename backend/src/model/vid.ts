@@ -1,5 +1,6 @@
 /**
  * Model for Vid template
+ * 
  *
  */
 import mongoose from "mongoose";

@@ -7,6 +7,7 @@ import tag from "../model/tag";
 export const addTag = async (req: Request, res: Response) => {
   const { tagName } = req.body;
 
+  
   try {
     const savedTag = await new Tag({ tagName }).save();
     res.status(201).json({

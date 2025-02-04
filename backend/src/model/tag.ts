@@ -1,5 +1,6 @@
 /**
  * Model for tag
+ * 
  */
 
 import mongoose from "mongoose";

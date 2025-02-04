@@ -1,5 +1,6 @@
 /**
  * MODEL USER
+ * 
  */
 
 import mongoose from "mongoose";
