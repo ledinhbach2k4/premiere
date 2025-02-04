@@ -10,7 +10,7 @@
  */
 
 import express from 'express';
-import { getListUser, addUser, deleteAllUser  } from '../controller/userDAO';
+import { getListUser, addUser, deleteAllUser  } from '../DAO/userDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 const router = express.Router();
 
