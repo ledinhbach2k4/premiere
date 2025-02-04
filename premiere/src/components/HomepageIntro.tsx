@@ -4,7 +4,11 @@ import {
 } from "@mui/material";
 import InfiniteSlider from "./InfiniteSlider";
 
-export default function Home() {
+export default function HomepageIntro() {
+
+  
+
+
   return (
     <>
       <Box sx={{ textAlign: "center", my: 4 }}>

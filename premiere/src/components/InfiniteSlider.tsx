@@ -9,7 +9,7 @@ export default function InfiniteSlider() {
       "https://yt3.googleusercontent.com/fNJvy_Nxdo0O2nzV_Ubd2x2HP30FUexMxWwIWnGKQTSuy5r7nRMSfl8fC-m0dK6TANdkZRnXug=s160-c-k-c0x00ffffff-no-rj",
     subscribe: Math.floor(Math.random() * 1000000),
     position: i + 1,
-  }));
+  }));  
 
   return (
     <>

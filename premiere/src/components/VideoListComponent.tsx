@@ -9,16 +9,18 @@ import {
   Stack,
 } from "@mui/material";
 import Preview from "../components/Preview";
+import SearchBar from "./SearchBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./../theme/VideoListComponent.css";
 
-export default function Home() {
+export default function VideoListComponent() {
   const [selectedTab, setSelectedTab] = useState<string>("Nổi bật");
   const [videoData, setVideoData] = useState([]);
   const [numberOfVid, setNumberOfVid] = useState(9); // use for load more video
   const [tagsData, setTagsData] = useState([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // use for search
 
   const fetchTemplates = async () => {
     try {
@@ -32,15 +34,20 @@ export default function Home() {
         params.tags = selectedTags;
       }
 
+      if (searchQuery.length > 0) {
+        params.searchQuery = searchQuery;
+      }
+
       let videosResponse;
 
       if (selectedTab === "Nổi bật") {
-        videosResponse = await axios.get(`/api/get9VidSortByLiked`, { params });
+        videosResponse = await axios.get(`/api/get9VidSortByLiked`, { params }); // get list sorted by lineNum
       } else if (selectedTab === "Mới nhất") {
-        videosResponse = await axios.get(`/api/getNext10Vid`, { params });
+        videosResponse = await axios.get(`/api/getNext10Vid`, { params }); // get list sorted by RealeseDate
       }
 
       setVideoData(videosResponse?.data.data || []);
+      
     } catch (error) {
       console.error("Error fetching templates:", error);
       setVideoData([]); // Reset video data on error
@@ -50,7 +57,7 @@ export default function Home() {
   // fetch video template if there was changes
   useEffect(() => {
     fetchTemplates(); // Load video template
-  }, [selectedTab, numberOfVid, selectedTags]);
+  }, [selectedTab, numberOfVid, selectedTags, searchQuery]);
 
   const handleClick = (_id: string) => {
     if (selectedTags?.includes(_id)) {
@@ -77,6 +84,7 @@ export default function Home() {
           <Typography variant="h6" align="center" sx={{ mb: 3 }}>
             View All Video Template
           </Typography>
+          <SearchBar setSearchQuery={setSearchQuery} />
           <Box
             sx={{
               display: "flex",
