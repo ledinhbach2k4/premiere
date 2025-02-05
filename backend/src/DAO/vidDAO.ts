@@ -2,6 +2,7 @@ import { isObjectIdOrHexString } from "mongoose";
 import vid from "../model/vid";
 import { Request, Response } from "express";
 import { json } from "body-parser";
+import { error } from "console";
 
 // add new video
 export const addVid = async (req: Request, res: Response) => {
@@ -58,7 +59,6 @@ export const getNext10Vid = async (req: Request, res: Response) => {
     console.log(searchQuery);
     console.log(123);
 
-
     let filter: any = {};
     if (tags && Array.isArray(tags) && tags.length > 0) {
       filter.tags = { $all: tags };
@@ -67,25 +67,29 @@ export const getNext10Vid = async (req: Request, res: Response) => {
     if (searchQuery && typeof searchQuery === "string") {
       filter.title = { $regex: new RegExp(searchQuery, "i") };
     }
-    
 
     // Get the total count of documents
     const totalCount = await vid.countDocuments();
 
     if (index > totalCount) {
-      const data = await vid.find(filter).sort({ releaseDate: -1 }).limit(totalCount);
+      const data = await vid
+        .find(filter)
+        .sort({ releaseDate: -1 })
+        .limit(totalCount);
       res.status(200).json({
         message: "index is bigger than the total videos",
         data: data,
       });
     } else {
-      const data = await vid.find(filter).sort({ releaseDate: -1 }).limit(index);
+      const data = await vid
+        .find(filter)
+        .sort({ releaseDate: -1 })
+        .limit(index);
       res.status(200).json({
         message: "success find 10",
         data: data,
       });
     }
-    
   } catch (error) {
     console.log(error);
     res.status(400).json({
@@ -110,13 +114,15 @@ export const get9VidSortByLiked = async (req: Request, res: Response) => {
     if (searchQuery && typeof searchQuery === "string") {
       filter.title = { $regex: new RegExp(searchQuery, "i") };
     }
-    
 
     // Get the total count of documents
     const totalCount = await vid.countDocuments();
 
     if (index > totalCount) {
-      const data = await vid.find(filter).sort({ likeNum: -1 }).limit(totalCount);
+      const data = await vid
+        .find(filter)
+        .sort({ likeNum: -1 })
+        .limit(totalCount);
       res.status(200).json({
         message: "index is bigger than the total videos",
         data: data,
@@ -149,6 +155,42 @@ export const deleteAllVids = async (req: Request, res: Response) => {
     console.error(error); // Log the error for debugging
     res.status(500).json({
       message: "Server error",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+// GET video by Id
+export const getVidById = async (req: Request, res: Response) => {
+  try {
+    const _id = req.query._id as string;
+
+    console.log(_id);
+
+    if (!_id) {
+      res.status(400).json({
+        message: "no Id provided",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+
+    // check if _id is a Hex String or not
+    if (!isObjectIdOrHexString(_id)) {
+      res.status(400).json({
+        message: "_id is not instance of a Objectid",
+      });
+    }
+
+    const data = await vid.findById(_id);
+
+    res.status(200).json({
+      message: "retreive video from Id",
+      data: data,
+    });
+
+  } catch (error) {
+    res.status(404).json({
+      message: "No video found",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }

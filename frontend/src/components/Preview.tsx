@@ -3,8 +3,9 @@ import { Paper, Skeleton, Typography, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IVideo } from "./../interface/type";
 
-export default function Preview(props: { key: string, data: { _id: string, title: string, url: string, tags: [string]} }) {
+export default function Preview(props: { key: string, data: IVideo }) {
 
   const [liked, setLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -14,7 +15,8 @@ export default function Preview(props: { key: string, data: { _id: string, title
   };
 
   //define the vid model
-  const { _id, title, url, tags } = props.data;
+  const { _id, title, url, tags, likeNum, releaseDate } = props.data;
+  const releaseDateString = new Date(releaseDate).toLocaleDateString();
 
   const navigate = useNavigate();
   return (
@@ -32,9 +34,7 @@ export default function Preview(props: { key: string, data: { _id: string, title
           position: "relative",
           overflow: "hidden", // Ensures content doesn't overflow
         }}
-        onClick={() => {
-          navigate(`/template/:${ _id }`);
-        }}
+
       >
         {!imageLoaded && (
           <Skeleton variant="rectangular" width={300} height={170} />
@@ -46,12 +46,17 @@ export default function Preview(props: { key: string, data: { _id: string, title
             width: '300px',
             height: '170px',
             objectFit: 'cover',
-            display: imageLoaded ? 'block' : 'none', // Hide image until it's loaded
+            display: imageLoaded ? 'block' : 'none', 
           }}
-          onLoad={() => setImageLoaded(true)} // Set imageLoaded to true when the image has loaded
+          onLoad={() => setImageLoaded(true)} // khi load duoc anh thi khong load skeleton nua
+          onClick={() => {
+            navigate(`/template/:${ _id }`);
+          }}
         />
         <Typography variant="h5">{title}</Typography>
-        <Typography variant="body2">{tags}</Typography>
+        <Typography variant="body2">{likeNum} liked </Typography>
+        <Typography variant="body2">{releaseDateString} </Typography>
+
         <IconButton
           onClick={toggleLike}
           sx={{

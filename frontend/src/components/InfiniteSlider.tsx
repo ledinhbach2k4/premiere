@@ -1,5 +1,5 @@
 import { Box, Typography, Chip, Stack } from "@mui/material";
-import "./../theme/youtuberSlider.css";
+import "./../css/youtuberSlider.css";
 
 export default function InfiniteSlider() {
   // Dummy data for YouTubers list

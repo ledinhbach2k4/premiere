@@ -12,7 +12,7 @@ import Preview from "../components/Preview";
 import SearchBar from "./SearchBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "./../theme/VideoListComponent.css";
+import "./../css/VideoListComponent.css";
 
 export default function VideoListComponent() {
   const [selectedTab, setSelectedTab] = useState<string>("Nổi bật");
@@ -47,7 +47,6 @@ export default function VideoListComponent() {
       }
 
       setVideoData(videosResponse?.data.data || []);
-      
     } catch (error) {
       console.error("Error fetching templates:", error);
       setVideoData([]); // Reset video data on error
@@ -70,48 +69,19 @@ export default function VideoListComponent() {
   return (
     <>
       <Box sx={{ minHeight: "100vh" }}>
-        <Paper
-          sx={{
-            p: 3,
-            transition: "box-shadow 0.3s ease-in-out",
-            borderRadius: " 45px ",
-            opacity: 0.95,
-            "&:hover": {
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)", // Add shadow on hover
-            },
-          }}
-        >
+        <Paper className="video-list-paper">
           <Typography variant="h6" align="center" sx={{ mb: 3 }}>
             View All Video Template
           </Typography>
           <SearchBar setSearchQuery={setSearchQuery} />
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Tabs
               value={selectedTab}
               onChange={(_e, newValue) => {
                 setSelectedTab(newValue);
                 setNumberOfVid(9); // Reset index when changing tabs
               }}
-              centered
-              textColor="primary"
-              indicatorColor="primary"
-              sx={{
-                "& .MuiTab-root": {
-                  transition:
-                    "color 0.3s ease-in-out, transform 0.3s ease-in-out",
-                  "&:hover": {
-                    color: "primary.dark", // Change color on hover
-                    transform: "scale(1.1)", // Slightly scale up on hover
-                  },
-                },
-              }}
+              className="video-list-tabs"
             >
               <Tab value="Nổi bật" label="Nổi bật" />
               <Tab value="Mới nhất" label="Mới nhất" />
@@ -127,28 +97,13 @@ export default function VideoListComponent() {
                       variant={
                         selectedTags?.includes(tag._id) ? "outlined" : "filled"
                       }
-                      sx={{
-                        transition: "all 0.3s ease-in-out",
-                        "&:hover": {
-                          backgroundColor: "primary.light", // Change background color on hover
-                          color: "white", // Change text color on hover
-                          transform: "scale(1.1)", // Slightly scale up on hover
-                        },
-                      }}
+                      className="video-list-chip"
                     />
                   ))
                 : null}
             </Stack>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              gap: 3,
-              flexWrap: "wrap",
-              justifyContent: "center",
-              mb: 2,
-            }}
-          >
+          <Box className="video-list-grid">
             {videoData.length > 0 ? (
               videoData.map(
                 (data: {
@@ -156,17 +111,10 @@ export default function VideoListComponent() {
                   title: string;
                   url: string;
                   tags: [string];
+                  likeNum: number;
+                  releaseDate: Date;
                 }) => (
-                  <Box
-                    className="block"
-                    key={data._id}
-                    sx={{
-                      transition: "transform 0.3s ease-in-out",
-                      "&:hover": {
-                        transform: "scale(1.05)", // Slightly scale up on hover
-                      },
-                    }}
-                  >
+                  <Box className="video-list-preview" key={data._id}>
                     <Preview key={data._id} data={data} />
                   </Box>
                 )
@@ -187,16 +135,7 @@ export default function VideoListComponent() {
             <Button
               variant="contained"
               onClick={() => setNumberOfVid(numberOfVid + 9)}
-              sx={{
-                bgcolor: "primary.main",
-                "&:hover": {
-                  bgcolor: "primary.dark",
-                  transform: "scale(1.05)", // Slightly scale up on hover
-                },
-                transition: "all 0.3s ease-in-out",
-                borderRadius: 2,
-                padding: "10px 20px",
-              }}
+              className="video-list-load-more-btn"
             >
               Load More
             </Button>

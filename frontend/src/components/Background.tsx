@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import "./../theme/ctr.css";
+import "./../css/ctr.css";
 
 export default function Background() {
   return (

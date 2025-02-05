@@ -11,10 +11,6 @@ const vidSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  url: {
-    type: String,
-    require: true,
-  },
   tags: {
     type: [Schema.Types.ObjectId], // Use ObjectId to reference Tag model
     ref: "Tag", // Reference to the Tag model

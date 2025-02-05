@@ -10,7 +10,7 @@
 
 
 import express from 'express';
-import { addVid, deleteVidById, getNext10Vid, get9VidSortByLiked, deleteAllVids } from '../DAO/vidDAO';
+import { addVid, deleteVidById, getNext10Vid, get9VidSortByLiked, deleteAllVids, getVidById } from '../DAO/vidDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 const router = express.Router();
 
@@ -71,6 +71,21 @@ router.put('/api/addVid', addVid );
  *         description: Tag added successfully
  */
 router.delete('/api/deleteVidByID', deleteVidById ); 
+
+/**
+ * @swagger
+ * /api/deleteAllVids:
+ *   delete:
+ *     tags: 
+ *      - VIDEO
+ *     summary: Delete all videos
+ *     responses:
+ *       200:
+ *         description: All videos deleted successfully
+ *       500:
+ *         description: Server error
+ */
+router.delete('/api/deleteAllVids', deleteAllVids);
 
 /**
  * @swagger
@@ -135,20 +150,29 @@ router.get('/api/getNext10Vid', getNext10Vid );
 router.get('/api/get9VidSortByLiked', get9VidSortByLiked ); 
 
 
+
+
 /**
  * @swagger
- * /api/deleteAllVids:
- *   delete:
+ * /api/getVidById:
+ *   get:
  *     tags: 
  *      - VIDEO
- *     summary: Delete all videos
+ *     summary: get video by Id
+ *     parameters:
+ *      - in: query
+ *        name: _id
+ *        required: true
+ *        schema:
+ *          type: string
+ *          example: 0
  *     responses:
  *       200:
- *         description: All videos deleted successfully
+ *         description: retreive video from Id
  *       500:
  *         description: Server error
  */
-router.delete('/api/deleteAllVids', deleteAllVids);
+router.get('/api/getVidById', getVidById );
 
 
 
