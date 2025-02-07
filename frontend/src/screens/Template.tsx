@@ -5,34 +5,44 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IVideo } from "../interface/type";
 import axios from "axios";
+import { useGLTF } from "@react-three/drei";
+import { ObjectMap } from "@react-three/fiber";
+import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+
 
 export default function Template() {
-  const { _id } = useParams<string>(); 
+  const { _id } = useParams<string>();
   const [vidData, setVidData] = useState<IVideo>();
 
   const safe_id = _id?.replace(":", ""); // xoá dấu : ở param _id
+  // Load model
+  const gltf = useGLTF(`/gltf/${safe_id}.gltf`);
 
+  /**
+   *  nodeList sẽ vào preview panel để hiển thị từng object
+   *  setNodeList sẽ vào edit Panel để thay đổi thông số của object
+   *
+   *
+   *
+   *
+   */
+  const [model, setModel] = useState<GLTF & ObjectMap>(gltf as unknown as GLTF & ObjectMap); // cách ép kiểu dâm tà
+
+  // get video data from db
   const getvideoData = async (_id: string) => {
     try {
       const response = await axios.get("/api/getVidById", { params: { _id } });
-      console.log(response.data.data);
       setVidData(response.data.data);
     } catch (error) {
       console.error("Failed to fetch video data", error);
     }
   };
-  
 
   useEffect(() => {
     if (safe_id) {
       getvideoData(safe_id);
     }
-  }, [safe_id]); 
-  
-
-
-
-
+  }, [safe_id]);
 
   return (
     <>
@@ -50,7 +60,11 @@ export default function Template() {
             justifyContent: "center",
           }}
         >
-          <PreviewPanel _id={vidData?._id} vidData = { vidData } />
+          <PreviewPanel
+            _id={vidData?._id}
+            vidData={vidData}
+            model={model}
+          />
         </Paper>
         <Paper
           elevation={3}
@@ -67,11 +81,13 @@ export default function Template() {
             Edit Panel
           </Typography>
           {/* need to adjust */}
-        <EditPanel props={_id} setProps={vidData} /> 
+          <EditPanel model={model} setModel={setModel} />
         </Paper>
       </Box>
 
-      <Typography align="center" variant="h3"> View More Template </Typography>
+      <Typography align="center" variant="h3">
+        View More Template
+      </Typography>
     </>
   );
 }

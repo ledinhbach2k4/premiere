@@ -68,7 +68,7 @@ export default function VideoListComponent() {
 
   return (
     <>
-      <Box sx={{ minHeight: "100vh" }}>
+      <Box className="video-list-container">
         <Paper className="video-list-paper">
           <Typography variant="h6" align="center" sx={{ mb: 3 }}>
             View All Video Template

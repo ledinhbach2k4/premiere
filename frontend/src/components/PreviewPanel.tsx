@@ -1,5 +1,5 @@
 import { Box, Typography, Paper, Slider, Skeleton } from "@mui/material";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "../assets/js/Model";
 import { useState } from "react";
 import { IVideo } from "../interface/type";
@@ -7,10 +7,13 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowRightRounded";
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
+import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
+import { GLTF } from "three/examples/jsm/Addons.js";
 
 export default function PreviewPanel(props: {
-  _id: string | undefined; // might change afterward
+  _id: string | undefined;
   vidData: IVideo | undefined;
+  model: GLTF & ObjectMap;
 }) {
   const [time, setTime] = useState();
   const [isPlay, setIsPlay] = useState(true);
@@ -46,7 +49,7 @@ export default function PreviewPanel(props: {
             <Canvas
               style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
             >
-              <Model _id={props.vidData?._id} />
+              <Model _id={props.vidData?._id} model={props.model} />
             </Canvas>
           ) : (
             <Skeleton
@@ -71,7 +74,7 @@ export default function PreviewPanel(props: {
           justifyContent: "center",
         }}
       >
-        <Box sx={{width: " 40vh "}}>
+        <Box sx={{ width: " 40vh " }}>
           <Slider min={0} max={100} />
         </Box>
         <Box>
