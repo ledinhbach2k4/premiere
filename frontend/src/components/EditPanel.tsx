@@ -8,7 +8,7 @@ export default function EditPanel({props, setProps}) {
     setProps({ scale: scale });
   };
   return (
-    <Box sx={{ display: "flex", flexDirection: "column" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", justifyContent: 'flex-start' }}>
       <Typography variant="h3">Edit</Typography>
       <Typography variant="body1">Suc vat bien ©2025</Typography>
       <Slider value={scale} onChange={handleChange} min={0.1} max={5} step={0.1}

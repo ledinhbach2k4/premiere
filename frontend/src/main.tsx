@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router-dom";
 import router from "./routers/router";
 import { ThemeProviderWrapper } from "./contexts/ThemeContext"; // Import
 import "./index.css";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // use .env
 const clientId = import.meta.env.VITE_CLIENT_ID;
@@ -12,9 +13,11 @@ const clientId = import.meta.env.VITE_CLIENT_ID;
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={clientId}>
-      <ThemeProviderWrapper>
-        <RouterProvider router={router} />
-      </ThemeProviderWrapper>
+      <AuthProvider>
+        <ThemeProviderWrapper>
+          <RouterProvider router={router} />
+        </ThemeProviderWrapper>
+      </AuthProvider>
     </GoogleOAuthProvider>
   </StrictMode>
 );

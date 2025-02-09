@@ -1,13 +1,14 @@
 import PreviewPanel from "../components/PreviewPanel";
 import EditPanel from "../components/EditPanel";
-import { Box, Paper, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Box, Paper, Typography, Button } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import { IVideo } from "../interface/type";
 import axios from "axios";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function Template() {
-  const { _id } = useParams<string>(); 
+  const { _id } = useParams<string>();
   const [vidData, setVidData] = useState<IVideo>();
 
   const safe_id = _id?.replace(":", ""); // xoá dấu : ở param _id
@@ -21,18 +22,14 @@ export default function Template() {
       console.error("Failed to fetch video data", error);
     }
   };
-  
+
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     if (safe_id) {
       getvideoData(safe_id);
     }
-  }, [safe_id]); 
-  
-
-
-
-
+  }, [safe_id]);
 
   return (
     <>
@@ -50,7 +47,7 @@ export default function Template() {
             justifyContent: "center",
           }}
         >
-          <PreviewPanel _id={vidData?._id} vidData = { vidData } />
+          <PreviewPanel _id={vidData?._id} vidData={vidData} />
         </Paper>
         <Paper
           elevation={3}
@@ -59,7 +56,7 @@ export default function Template() {
             padding: 2,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            // justifyContent: "center",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)", // Shadow for depth
           }}
         >
@@ -67,11 +64,22 @@ export default function Template() {
             Edit Panel
           </Typography>
           {/* need to adjust */}
-        <EditPanel props={_id} setProps={vidData} /> 
+          <EditPanel props={_id} setProps={vidData} />
         </Paper>
       </Box>
-
-      <Typography align="center" variant="h3"> View More Template </Typography>
+      <Typography align="center" variant="h3">
+        {" "}
+        View More Template{" "}
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          if (user) return <Navigate to="/template" />;
+        }}
+      >
+        XUẤT
+      </Button>
     </>
   );
 }

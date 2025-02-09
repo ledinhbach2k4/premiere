@@ -1,17 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import GoogleIcon from "@mui/icons-material/Google"; // Import a Google icon
 import { Button } from "@mui/material"; // Import a button
 import { useGoogleLogin } from "@react-oauth/google"; // Import a Google login hook
 import api from "../api/axios";
+import { AuthContext } from "../contexts/AuthContext";
 export default function LoginButton() {
-  const login = useGoogleLogin({
-    onSuccess: async (res) => {
-      const { data } = await api.get(
-   
-          // send to backend
-      );
-      // data will be the token
-      // store the token in local storage
+  const { login } = useContext(AuthContext);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const { data } = await api.post("/auth/google/token", {
+          token: tokenResponse.access_token,
+        });
+        localStorage.setItem("token", data.token);
+        console.log("User logged in: ", data.user);
+      } catch (error) {
+        console.error("Google login failed", error);
+      }
     },
     onError: (error) => {
       console.error(error);
@@ -22,7 +28,7 @@ export default function LoginButton() {
       variant="contained"
       startIcon={<GoogleIcon />}
       onClick={() => {
-        login();
+        handleGoogleLogin();
       }}
     >
       Login with Google
