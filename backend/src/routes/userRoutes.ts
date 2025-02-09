@@ -10,20 +10,14 @@
  * 
  */
 
-import express from 'express';
-import { getListUser, addUser, deleteAllUser  } from '../DAO/userDAO';
+import express, {Request, Response, Router} from 'express';
+import { getListUser, addUser, deleteAllUser, checkToken  } from '../controller/userDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 import passport from 'passport';
-import jwt from 'jsonwebtoken';
-import User from '../model/user';
-import { OAuth2Client } from 'google-auth-library';
-import dotenv from 'dotenv';
 
-dotenv.config();
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const router = express.Router();
+const router: Router = express.Router();
 
 /**
  * @swagger
@@ -82,6 +76,17 @@ router.put('/api/addUsers', addUser);
  */
 router.delete('/api/deleteAllUsers', deleteAllUser ); // Complete the route for deleting all users
 
+/**
+ * @swagger
+ * /api/sign-up:
+ *   post:
+ *     tags: 
+ *      - user
+ *     summary: Create a new user
+ *     responses:
+ *       200:
+ *         description: A user is created successfully.
+ */
 router.post('/sign-up', async (req, res, next) => {
     try {
         addUser(req, res);
@@ -96,45 +101,17 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
 }
 );
 
-router.post('/auth/google/token', async (req, res) => {
-    const { token } = req.body;
-    if (!token) {
-        return res.status(400).json({ error: "Missing Google token" });
-    }
-
-    try {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID
-        });
-
-        const payload = ticket.getPayload();
-        if (!payload) {
-            return res.status(400).json({ error: "Invalid Google token" });
-        }
-
-        let user = await User.findOne({ googleId: payload.sub });
-        if (!user) {
-            user = new User({
-                googleId: payload.sub,
-                username: payload.name,
-                email: payload.email
-            });
-            await user.save();
-        }
-
-        // Generate a session or JWT (better for frontend auth)
-        const userToken = generateToken(user); // You need a function for this
-        res.json({ token: userToken, user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
-function generateToken(user) {
-    return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-}
-
+/**
+ * @swagger
+ * /api/auth/google/token:
+ *   post:
+ *     tags: 
+ *      - user
+ *     summary: Create a new user
+ *     responses:
+ *       200:
+ *         description: Token is checked.
+ */
+router.post('/auth/google/token', checkToken);
 
 export default router;

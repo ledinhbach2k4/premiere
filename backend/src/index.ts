@@ -12,6 +12,8 @@ import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from './model/user';
+import cors from "cors";
+
 
 dotenv.config();
 const app = express();
@@ -19,12 +21,13 @@ const PORT = process.env.PORT;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
+app.use(cors());
+
 //connectDB
 connectDB();
 
 app.use(session({ secret: "cats", resave: false, saveUninitialized: false }));
 app.use(passport.session());
-
 
 passport.use(new GoogleStrategy({
   clientID: GOOGLE_CLIENT_ID || "none", //handle null
@@ -58,7 +61,7 @@ app.use(express.static("public"));
 // Register routes  
 app.use('/', userRoutes);
 app.use('/', tagRoutes);
-app.use('/',vidRoutes);
+app.use('/', vidRoutes);
 
 // Start the server
 app.listen(PORT, () => {
