@@ -10,17 +10,35 @@ export default function LoginButton() {
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
+        // Fetch user info from Google using the access token
+        const userInfoResponse = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
+          }
+        );
+        const userInfo = await userInfoResponse.json();
+
+        console.log("Google User Info:", userInfo); // Debugging
+
+        // Send user's info to the backend for verification
         const { data } = await api.post("/auth/google/token", {
-          token: tokenResponse.access_token,
+          googleId: userInfo.sub, // Google User ID
+          email: userInfo.email,
+          name: userInfo.name,
         });
+
         localStorage.setItem("token", data.token);
         console.log("User logged in: ", data.user);
+        
       } catch (error) {
         console.error("Google login failed", error);
       }
     },
     onError: (error) => {
-      console.error(error);
+      console.error("Google Login Error:", error);
     },
   });
   return (

@@ -63,37 +63,32 @@ export const addUser = async (req: Request, res: Response) => {
 };
 
 export const checkToken = async (req: Request, res: Response) => {
-  const { token } = req.body;
-  if (!token) {
-    res.status(400).json({ error: "Missing Google token" });
-  }
+  const { googleId, email, name } = req.body;
 
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload) {
-      res.status(400).json({ error: "Invalid Google token" });
-    } else {
-      let user = await User.findOne({ googleId: payload.sub });
+  if (!googleId || !email || !name) {
+    res.status(400).json({ error: "Missing Google user information" });
+  } else {
+    try {
+      let user = await User.findOne({ googleId });
+  
       if (!user) {
         user = new User({
-          googleId: payload.sub,
-          username: payload.name,
-          email: payload.email,
+          googleId,
+          username: name,
+          email,
         });
         await user.save();
       }
-
-      // Generate JWT token
+  
+      // Generate JWT token for authentication
       const userToken = generateToken(user);
+  
       res.json({ token: userToken, user });
+    } catch (error) {
+      console.error("Error processing Google login:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+
   }
+
 };
