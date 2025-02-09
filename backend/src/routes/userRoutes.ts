@@ -14,6 +14,14 @@ import express from 'express';
 import { getListUser, addUser, deleteAllUser  } from '../DAO/userDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 import passport from 'passport';
+import jwt from 'jsonwebtoken';
+import User from '../model/user';
+import { OAuth2Client } from 'google-auth-library';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = express.Router();
 
