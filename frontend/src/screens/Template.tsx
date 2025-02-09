@@ -28,7 +28,9 @@ export default function Template() {
    */
   const [model, setModel] = useState<GLTF & ObjectMap>(gltf as unknown as GLTF & ObjectMap); // cách ép kiểu dâm tà
 
-  // get video data from db
+
+
+  // lấy thông tin về video bằng Id từ backend
   const getvideoData = async (_id: string) => {
     try {
       const response = await axios.get("/api/getVidById", { params: { _id } });

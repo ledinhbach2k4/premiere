@@ -2,7 +2,7 @@ import { Box, Typography, Slider, TextField } from "@mui/material";
 import { useState } from "react";
 
 export default function EditPanel({ model, setModel }) { // không biết ép kiểu cho function
-  const [scale, setScale] = useState(0.01);
+  const [scale, setScale] = useState(1);
 
 
   const scaleChangeHandle = (event: Event, newValue: number | number[]) => {

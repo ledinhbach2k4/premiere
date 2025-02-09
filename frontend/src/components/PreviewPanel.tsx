@@ -1,4 +1,11 @@
-import { Box, Typography, Paper, Slider, Skeleton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Slider,
+  Skeleton,
+  Button,
+} from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "../assets/js/Model";
 import { useState } from "react";
@@ -7,7 +14,6 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowRightRounded";
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
-import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
 import { GLTF } from "three/examples/jsm/Addons.js";
 
 export default function PreviewPanel(props: {
@@ -15,8 +21,17 @@ export default function PreviewPanel(props: {
   vidData: IVideo | undefined;
   model: GLTF & ObjectMap;
 }) {
-  const [time, setTime] = useState();
+  const [time, setTime] = useState(0);
   const [isPlay, setIsPlay] = useState(true);
+  const [duration, setDuration] = useState(100); // Giá trị max cho Slider
+
+  const playHandler = () => {
+    setIsPlay(!isPlay);
+  };
+
+  const timelineHandler = (_event: Event, newValue: number | number[]) => {
+    setTime(newValue as number);
+  };
 
   return (
     <>
@@ -49,7 +64,14 @@ export default function PreviewPanel(props: {
             <Canvas
               style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
             >
-              <Model _id={props.vidData?._id} model={props.model} />
+              <Model
+                _id={props.vidData?._id}
+                model={props.model}
+                isPlay={isPlay}
+                time={time}
+                setTime={setTime}
+                setDuration={setDuration}
+              />
             </Canvas>
           ) : (
             <Skeleton
@@ -75,11 +97,31 @@ export default function PreviewPanel(props: {
         }}
       >
         <Box sx={{ width: " 40vh " }}>
-          <Slider min={0} max={100} />
+          {isPlay ? (
+            <Slider
+              min={0}
+              max={duration}
+              step={0.01}
+              value={time}
+              onChange={timelineHandler}
+              disabled
+            />
+          ) : (
+            <Slider
+              min={0}
+              max={duration}
+              step={0.01}
+              value={time}
+              onChange={timelineHandler}
+            />
+          )}
         </Box>
+
         <Box>
           <KeyboardDoubleArrowLeftRoundedIcon />
-          {isPlay ? <PlayArrowRoundedIcon /> : <PauseRoundedIcon />}
+          <Button onClick={playHandler}>
+            {isPlay ? <PauseRoundedIcon /> : <PlayArrowRoundedIcon />}
+          </Button>
           <KeyboardDoubleArrowRightRoundedIcon />
         </Box>
       </Box>
