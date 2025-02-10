@@ -11,16 +11,22 @@ import {
   Menu,
   Select,
   SelectChangeEvent,
+  Button,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "../contexts/ThemeContext"; // Import Context
+// useContext to get user info
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function NavBar() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
+
   const themeContext = useContext(ThemeContext);
+  const authContext = useContext(AuthContext); // Get user info
+  const { user, logout } = authContext;
 
   if (!themeContext) {
     throw new Error("NavBar must be used within a ThemeProviderWrapper");
@@ -40,6 +46,10 @@ export default function NavBar() {
     setAnchorElUser(null);
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   return (
     <Box
       sx={{
@@ -94,35 +104,44 @@ export default function NavBar() {
             <MenuItem value="dark">Dark</MenuItem>
             <MenuItem value="purple">Purple</MenuItem>
           </Select>
-          <IconButton onClick={handleOpenUserMenu}>
-            <Avatar alt="Mila" src="/mila.webp" />
-          </IconButton>
-
-          <Menu
-            sx={{ mt: "45px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            <MenuItem onClick={() => navigate("/account")}>
-              <Typography sx={{ textAlign: "center" }}>
-                Trang cá nhân
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={() => navigate("/login")}>
-              <Typography sx={{ textAlign: "center" }}>Đăng xuất</Typography>
-            </MenuItem>
-          </Menu>
+          {user ? (
+            <>
+              <IconButton onClick={handleOpenUserMenu}>
+                <Avatar alt="Mila" src="/mila.webp" />
+              </IconButton>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                <MenuItem onClick={() => navigate("/account")}>
+                  <Typography sx={{ textAlign: "center" }}>
+                    Trang cá nhân
+                  </Typography>
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/login")}>
+                  <Typography sx={{ textAlign: "center" }}>
+                    Đăng xuất
+                  </Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button variant='outlined' onClick={() => navigate("/login")}>
+              <Typography>Login</Typography>
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
     </Box>
