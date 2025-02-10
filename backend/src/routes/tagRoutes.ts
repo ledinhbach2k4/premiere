@@ -10,7 +10,7 @@
 
 
 import express from 'express';
-import { addTag, deleteTagByID, getAllTags } from '../DAO/tagDAO';
+import { addTag, deleteTagByID, getAllTags } from '../controller/tagDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 const router = express.Router();
 

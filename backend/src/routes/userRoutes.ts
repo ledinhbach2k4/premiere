@@ -10,10 +10,14 @@
  * 
  */
 
-import express from 'express';
-import { getListUser, addUser, deleteAllUser  } from '../DAO/userDAO';
+import express, {Request, Response, Router} from 'express';
+import { getListUser, addUser, deleteAllUser, checkToken  } from '../controller/userDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
-const router = express.Router();
+import passport from 'passport';
+
+
+
+const router: Router = express.Router();
 
 /**
  * @swagger
@@ -72,5 +76,42 @@ router.put('/api/addUsers', addUser);
  */
 router.delete('/api/deleteAllUsers', deleteAllUser ); // Complete the route for deleting all users
 
+/**
+ * @swagger
+ * /api/sign-up:
+ *   post:
+ *     tags: 
+ *      - user
+ *     summary: Create a new user
+ *     responses:
+ *       200:
+ *         description: A user is created successfully.
+ */
+router.post('/sign-up', async (req, res, next) => {
+    try {
+        addUser(req, res);
+    } catch (err){
+        return next(err);
+    }
+})
+
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
+    res.redirect('/');
+}
+);
+
+/**
+ * @swagger
+ * /api/auth/google/token:
+ *   post:
+ *     tags: 
+ *      - user
+ *     summary: Create a new user
+ *     responses:
+ *       200:
+ *         description: Token is checked.
+ */
+router.post('/auth/google/token', checkToken);
 
 export default router;

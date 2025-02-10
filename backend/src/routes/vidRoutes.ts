@@ -10,7 +10,7 @@
 
 
 import express from 'express';
-import { addVid, deleteVidById, getNext10Vid, get9VidSortByLiked, deleteAllVids, getVidById } from '../DAO/vidDAO';
+import { addVid, deleteVidById, getNext10Vid, get9VidSortByLiked, deleteAllVids, getVidById } from '../controller/vidDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
 const router = express.Router();
 

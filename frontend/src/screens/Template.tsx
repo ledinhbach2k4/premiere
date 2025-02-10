@@ -1,6 +1,6 @@
 import PreviewPanel from "../components/PreviewPanel";
 import EditPanel from "../components/EditPanel";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { IVideo } from "../interface/type";
@@ -75,7 +75,7 @@ export default function Template() {
             padding: 2,
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            // justifyContent: "center",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)", // Shadow for depth
           }}
         >
@@ -90,6 +90,8 @@ export default function Template() {
       <Typography align="center" variant="h3">
         View More Template
       </Typography>
+
+      
     </>
   );
 }
