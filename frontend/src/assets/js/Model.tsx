@@ -60,12 +60,12 @@ export default function Model(props: {
       const newObjectList: THREE.Object3D<Object3DEventMap>[] = [];
 
       // Loop qua nodes ( object ) trong file gltf & thêm vào list nếu file bắt đầu bằng object
-      Object.keys(gltf.nodes).forEach((key) => {
-        if (key.startsWith("object")) {
+      Object.keys(gltf.nodes)
+        .filter((key) => key.startsWith("object"))
+        .map((key) => {
           console.log(key);
           newObjectList.push(gltf.nodes[key]);
-        }
-      });
+        });
 
       // Update the state with the new list
       setObjectList((prevList) => [...prevList, ...newObjectList]);
