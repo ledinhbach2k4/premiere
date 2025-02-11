@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import api from "../api/axios";
 import { useGoogleLogin } from "@react-oauth/google"; // Import a Google login hook
 
-export const AuthContext = createContext(null);
+export const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
