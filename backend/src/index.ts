@@ -26,9 +26,9 @@ app.use(cors());
 //connectDB
 connectDB();
 
+//google login
 app.use(session({ secret: "cats", resave: false, saveUninitialized: false }));
 app.use(passport.session());
-
 passport.use(new GoogleStrategy({
   clientID: GOOGLE_CLIENT_ID || "none", //handle null
   clientSecret: GOOGLE_CLIENT_SECRET || "none",
@@ -51,6 +51,20 @@ function(accessToken, refreshToken, profile, cb) {
   .catch(err => cb(err));
   }
 ));
+
+//Cross-Origin Embedder Policy 
+/**
+ * Nó yêu cầu tất cả tài nguyên được tải về phải hỗ trợ "Cross-Origin Resource Sharing" (CORS) hoặc đến từ cùng một nguồn (same-origin).
+ * để cho phép tải canvas -> mp4
+ * xuất video hoặc hình ảnh từ canvas, trình duyệt sẽ yêu cầu phải bật chế độ Cross-Origin Isolation 
+ */
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  next();
+});
 
 // Middleware to serve Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Object3DEventMap } from "three";
-import { easing } from "maath";
 
 /**
  *-----------------------------|
@@ -29,6 +28,7 @@ export default function Model(props: {
   time: number;
   setTime: React.Dispatch<React.SetStateAction<number>>;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
+  isOrbitControl: boolean;
 }) {
   // tải lên model
   const gltf = props.model;
@@ -43,6 +43,8 @@ export default function Model(props: {
   const { set, gl } = useThree();
 
   // thời lượng của animation
+  // Lấy thời lượng 1 animation khong phai camera
+  const duration = animations[1].duration;
 
   // danh sách object có thể thay đổi thuộc tính
   const [objectList, setObjectList] = useState<
@@ -82,12 +84,6 @@ export default function Model(props: {
    *
    */
 
-  // Lấy thời lượng animation dài nhất trong scene
-  const duration = animations.reduce(
-    (max, clip) => Math.max(max, clip.duration),
-    0
-  );
-
   useEffect(() => {
     if (gltf.cameras.length > 0) {
       const gltfCamera = gltf.cameras[0] as THREE.PerspectiveCamera; // Ép kiểu theo Threejs
@@ -114,7 +110,7 @@ export default function Model(props: {
    *-------- FUNCTION ZONE-------|
    * ----------------------------*/
 
-  // nếu slider thay đổi thì sẽ chạy cái này
+  // nếu slider timeline thay đổi thì sẽ chạy cái này
   useEffect(() => {
     if (mixer.current) {
       mixer.current.setTime(props.time);
@@ -126,7 +122,7 @@ export default function Model(props: {
     if (mixer.current && props.isPlay) {
       mixer.current.update(delta);
 
-      if (duration < mixer.current.time) {
+      if (mixer.current.time >= duration) {
         mixer.current.setTime(0);
       }
 
@@ -152,7 +148,7 @@ export default function Model(props: {
       ))}
 
       {/* dùng chuột để điều khiển góc nhìn. sau này sẽ xoá đi hoặc sử dụng debug only*/}
-      <OrbitControls />
+      {props.isOrbitControl ? <OrbitControls /> : null}
     </>
   );
 }
