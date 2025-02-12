@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Object3DEventMap } from "three";
+import { mix } from "three/src/nodes/TSL.js";
 
 /**
  *-----------------------------|
@@ -45,6 +46,8 @@ export default function Model(props: {
   // thời lượng của animation
   // Lấy thời lượng 1 animation khong phai camera
   const duration = animations[1].duration;
+  props.setDuration(duration);
+
 
   // danh sách object có thể thay đổi thuộc tính
   const [objectList, setObjectList] = useState<
@@ -91,7 +94,6 @@ export default function Model(props: {
     }
 
     if (animations.length > 0) {
-      props.setDuration(duration);
 
       if (!mixer.current) {
         mixer.current = new THREE.AnimationMixer(scene);
@@ -119,15 +121,22 @@ export default function Model(props: {
 
   // Chạy animation mỗi frame
   useFrame((state, delta) => {
-    if (mixer.current && props.isPlay) {
-      mixer.current.update(delta);
-
-      if (mixer.current.time >= duration) {
-        mixer.current.setTime(0);
+    if (mixer.current)  {
+      if(props.isPlay) {
+        mixer.current.update(delta);
+        if (mixer.current.time >= duration) {
+          mixer.current.setTime(0);
+        }
+      } else {
+        props.setTime(mixer.current.time);
       }
 
-      props.setTime(mixer.current.time); // cập nhật cho slider
+      
+
     }
+
+    
+
   });
 
   return (

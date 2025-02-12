@@ -7,12 +7,11 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Alert,
   Popover,
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
-import Model from "../assets/js/Model";
-import { useCallback, useEffect, useState } from "react";
+import Model from "./Model";
+import { useCallback, useState } from "react";
 import { IVideo } from "../interface/type";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -20,8 +19,6 @@ import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDou
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
-import { CanvasCapture } from "canvas-capture";
-import { Height } from "@material-ui/icons";
 
 export default function PreviewPanel(props: {
   _id: string | undefined;
@@ -32,7 +29,6 @@ export default function PreviewPanel(props: {
   const [isPlay, setIsPlay] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
 
   // nút play
   const playHandler = () => {
@@ -70,6 +66,10 @@ export default function PreviewPanel(props: {
   const open = Boolean(anchorEl);
 
   // SIÊU XUẤT
+
+
+  
+
   const exportVideo = () => {
     const canvas = document.querySelector("canvas");
     const stream = canvas?.captureStream(30) as MediaStream;
@@ -224,32 +224,29 @@ export default function PreviewPanel(props: {
             <KeyboardDoubleArrowRightRoundedIcon />
           </Button>
         </Box>
-        {showAlert && (
-          <Popover
-            id="mouse-over-popover"
-            sx={{ pointerEvents: "none" }}
-            open={open}
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            onClose={handlePopoverClose}
-            disableRestoreFocus
-          >
-            <Typography sx={{ p: 1 }}>
-              <MouseOutlinedIcon /> HOLD <br></br>
-              <b>leftclick:</b> move around <br></br>
-              <b>rightclick:</b> move camera
-            </Typography>
-          </Popover>
-        )}
+        <Popover
+          id="mouse-over-popover"
+          sx={{ pointerEvents: "none" }}
+          open={open}
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          onClose={handlePopoverClose}
+          disableRestoreFocus
+        >
+          <Typography sx={{ p: 1 }}>
+            <MouseOutlinedIcon /> HOLD <br></br>
+            <b>leftclick:</b> move around <br></br>
+            <b>rightclick:</b> move camera
+          </Typography>
+        </Popover>
       </Box>
-      
     </>
   );
 }
