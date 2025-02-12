@@ -48,7 +48,6 @@ export default function Model(props: {
   const duration = animations[1].duration;
   props.setDuration(duration);
 
-
   // danh sách object có thể thay đổi thuộc tính
   const [objectList, setObjectList] = useState<
     THREE.Object3D<Object3DEventMap>[]
@@ -94,7 +93,6 @@ export default function Model(props: {
     }
 
     if (animations.length > 0) {
-
       if (!mixer.current) {
         mixer.current = new THREE.AnimationMixer(scene);
       }
@@ -113,31 +111,31 @@ export default function Model(props: {
    * ----------------------------*/
 
   // nếu slider timeline thay đổi thì sẽ chạy cái này
+
+  const hasSetTime = useRef<boolean>(false); // đảm bảo set Time chỉ chạy 1 lần trong useFrame
+
   useEffect(() => {
     if (mixer.current) {
-      mixer.current.setTime(props.time);
+      mixer.current.setTime(props.time); // Cập nhật thời gian khi có thay đổi thực sự
     }
   }, [props.time]);
 
   // Chạy animation mỗi frame
   useFrame((state, delta) => {
-    if (mixer.current)  {
-      if(props.isPlay) {
+    if (mixer.current) {
+      if (props.isPlay) {
         mixer.current.update(delta);
         if (mixer.current.time >= duration) {
           mixer.current.setTime(0);
         }
-      } else {
+      } else if(!hasSetTime.current) {
         props.setTime(mixer.current.time);
+        hasSetTime.current = true;
       }
-
-      
-
     }
-
-    
-
   });
+
+  
 
   return (
     <>

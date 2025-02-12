@@ -198,7 +198,6 @@ export default function PreviewPanel(props: {
               max={duration}
               step={0.01}
               value={time}
-              onChange={timelineHandler}
               disabled
             />
           ) : (
@@ -206,7 +205,7 @@ export default function PreviewPanel(props: {
               min={0}
               max={duration}
               step={0.01}
-              value={time}
+              value={time} // Nếu đang kéo, hiển thị seekTime; nếu không thì time
               onChange={timelineHandler}
             />
           )}
