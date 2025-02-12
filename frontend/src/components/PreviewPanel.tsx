@@ -31,9 +31,6 @@ export default function PreviewPanel(props: {
   const [isPlay, setIsPlay] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
-  const [exportCanvasRef, setExportCanvasRef] =
-    useState<HTMLCanvasElement | null>(null);
-  const [openFullScreen, setOpenFullScreen] = useState(false);
 
   // nút play
   const playHandler = () => {
@@ -73,11 +70,14 @@ export default function PreviewPanel(props: {
   // SIÊU XUẤT
 
   const exportVideo = () => {
+    const canvas = document.getElementById("canvas")?.children[0]
+      .children[0] as HTMLCanvasElement;
 
-    const canvas = document.getElementById("canvas")?.children[0].children[0] as HTMLCanvasElement;
-    
     const stream = canvas.captureStream(30) as MediaStream;
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+    const mediaRecorder = new MediaRecorder(stream, {
+      mimeType: "video/webm",
+      videoBitsPerSecond: 5_000_000,
+    });
     const chunks: BlobPart[] = [];
 
     mediaRecorder.ondataavailable = (event) => {
@@ -86,7 +86,9 @@ export default function PreviewPanel(props: {
       }
     };
     mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: "video/webm" });
+      const blob = new Blob(chunks, {
+        type: "video/webm",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -96,9 +98,10 @@ export default function PreviewPanel(props: {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     };
-    setTime(0);
 
     mediaRecorder.start();
+    setTime(0);
+    setIsPlay(true);
     console.log("Recording started, will stop after:", duration, "seconds");
 
     setTimeout(() => {
@@ -109,16 +112,7 @@ export default function PreviewPanel(props: {
 
   return (
     <>
-      <Button
-        onClick={() => {
-          setOpenFullScreen(true); // Mở Dialog trước
-          setTimeout(() => {
-            exportVideo(); // Gọi export sau khi Dialog mở
-          }, 1000); // Chờ 0.5s để đảm bảo render
-        }}
-      >
-        export
-      </Button>
+      <Button onClick={exportVideo}>export</Button>
       <Box
         sx={{
           display: "flex",
@@ -165,6 +159,7 @@ export default function PreviewPanel(props: {
           {props.vidData ? (
             <>
               <Canvas
+                id="canvas"
                 gl={{ preserveDrawingBuffer: true }}
                 style={{
                   width: "100%",
@@ -182,39 +177,6 @@ export default function PreviewPanel(props: {
                   isOrbitControl={isOrbitControl}
                 />
               </Canvas>
-              <Dialog
-                fullScreen
-                open={openFullScreen}
-                onClick={() => setOpenFullScreen(false)}
-              >
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  onClick={() => setOpenFullScreen(false)}
-                  aria-label="close"
-                  sx={{ position: "absolute", top: 10, right: 10 }}
-                ></IconButton>
-
-                <Canvas
-                  id="canvas"
-                  gl={{ preserveDrawingBuffer: true }}
-                  style={{
-                    width: "100vw",
-                    height: "100vh",
-                    backgroundColor: "#000",
-                  }}
-                >
-                  <Model
-                    _id={props.vidData?._id}
-                    model={props.model}
-                    isPlay={isPlay}
-                    time={time}
-                    setTime={setTime}
-                    setDuration={setDuration}
-                    isOrbitControl={isOrbitControl}
-                  />
-                </Canvas>
-              </Dialog>
             </>
           ) : (
             <Skeleton
