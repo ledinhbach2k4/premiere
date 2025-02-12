@@ -8,6 +8,8 @@ import {
   Checkbox,
   FormControlLabel,
   Popover,
+  Dialog,
+  IconButton,
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "./Model";
@@ -29,6 +31,9 @@ export default function PreviewPanel(props: {
   const [isPlay, setIsPlay] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
+  const [exportCanvasRef, setExportCanvasRef] =
+    useState<HTMLCanvasElement | null>(null);
+  const [openFullScreen, setOpenFullScreen] = useState(false);
 
   // nút play
   const playHandler = () => {
@@ -67,12 +72,11 @@ export default function PreviewPanel(props: {
 
   // SIÊU XUẤT
 
-
-  
-
   const exportVideo = () => {
-    const canvas = document.querySelector("canvas");
-    const stream = canvas?.captureStream(30) as MediaStream;
+
+    const canvas = document.getElementById("canvas")?.children[0].children[0] as HTMLCanvasElement;
+    
+    const stream = canvas.captureStream(30) as MediaStream;
     const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
     const chunks: BlobPart[] = [];
 
@@ -93,7 +97,10 @@ export default function PreviewPanel(props: {
       URL.revokeObjectURL(url);
     };
     setTime(0);
+
     mediaRecorder.start();
+    console.log("Recording started, will stop after:", duration, "seconds");
+
     setTimeout(() => {
       mediaRecorder.stop();
       console.log("Recording stopped.");
@@ -102,7 +109,16 @@ export default function PreviewPanel(props: {
 
   return (
     <>
-      <Button onClick={exportVideo}> export </Button>
+      <Button
+        onClick={() => {
+          setOpenFullScreen(true); // Mở Dialog trước
+          setTimeout(() => {
+            exportVideo(); // Gọi export sau khi Dialog mở
+          }, 1000); // Chờ 0.5s để đảm bảo render
+        }}
+      >
+        export
+      </Button>
       <Box
         sx={{
           display: "flex",
@@ -166,6 +182,39 @@ export default function PreviewPanel(props: {
                   isOrbitControl={isOrbitControl}
                 />
               </Canvas>
+              <Dialog
+                fullScreen
+                open={openFullScreen}
+                onClick={() => setOpenFullScreen(false)}
+              >
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={() => setOpenFullScreen(false)}
+                  aria-label="close"
+                  sx={{ position: "absolute", top: 10, right: 10 }}
+                ></IconButton>
+
+                <Canvas
+                  id="canvas"
+                  gl={{ preserveDrawingBuffer: true }}
+                  style={{
+                    width: "100vw",
+                    height: "100vh",
+                    backgroundColor: "#000",
+                  }}
+                >
+                  <Model
+                    _id={props.vidData?._id}
+                    model={props.model}
+                    isPlay={isPlay}
+                    time={time}
+                    setTime={setTime}
+                    setDuration={setDuration}
+                    isOrbitControl={isOrbitControl}
+                  />
+                </Canvas>
+              </Dialog>
             </>
           ) : (
             <Skeleton
@@ -193,13 +242,7 @@ export default function PreviewPanel(props: {
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
           {isPlay ? (
-            <Slider
-              min={0}
-              max={duration}
-              step={0.01}
-              value={time}
-              disabled
-            />
+            <Slider min={0} max={duration} step={0.01} value={time} disabled />
           ) : (
             <Slider
               min={0}

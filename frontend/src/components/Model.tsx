@@ -124,6 +124,7 @@ export default function Model(props: {
   useFrame((state, delta) => {
     if (mixer.current) {
       if (props.isPlay) {
+        hasSetTime.current = false;
         mixer.current.update(delta);
         if (mixer.current.time >= duration) {
           mixer.current.setTime(0);
