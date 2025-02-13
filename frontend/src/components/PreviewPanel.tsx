@@ -21,6 +21,9 @@ import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDou
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+
+
 
 export default function PreviewPanel(props: {
   _id: string | undefined;
@@ -68,48 +71,102 @@ export default function PreviewPanel(props: {
   const open = Boolean(anchorEl);
 
   // SIÊU XUẤT
+  const ffmpeg = new FFmpeg();
 
-  const exportVideo = () => {
-    const canvas = document.getElementById("canvas")?.children[0]
-      .children[0] as HTMLCanvasElement;
-
-    const stream = canvas.captureStream(30) as MediaStream;
-    const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: "video/webm",
-      videoBitsPerSecond: 5_000_000,
-    });
-    const chunks: BlobPart[] = [];
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
+  const exportVideo = async () => {
+    try {
+      console.log("Bắt đầu export video...");
+      
+      if (!ffmpeg.load()) {
+        console.log("Đang tải FFmpeg...");
+        await ffmpeg.load();
+        console.log("FFmpeg đã sẵn sàng.");
       }
-    };
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, {
-        type: "video/webm",
-      });
-      const url = URL.createObjectURL(blob);
+  
+      const canvas = document.getElementById("canvas")?.children[0].children[0] as HTMLCanvasElement;
+      
+      console.log(canvas);  
+
+      if (!canvas) {
+        console.error("Canvas không tìm thấy!");
+        return;
+      }
+  
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        console.error("Không thể lấy context của canvas!");
+        return;
+      }
+  
+      const frameRate = 30; // FPS mong muốn
+      const duration = 5; // Ghi trong 5 giây (có thể thay đổi)
+      const totalFrames = frameRate * duration;
+      const frames: string[] = [];
+  
+      console.log(`Bắt đầu ghi ${totalFrames} frames...`);
+  
+      // Chụp từng frame
+      for (let i = 0; i < totalFrames; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
+  
+        const dataURL = canvas.toDataURL("image/png");
+        const blob = await (await fetch(dataURL)).blob();
+        const file = new File([blob], `frame_${i.toString().padStart(4, "0")}.png`);
+  
+        console.log(`Đã chụp frame ${i}: ${file.name}`);
+  
+        try {
+          ffmpeg.FS("writeFile", file.name, await fetchFile(file));
+          frames.push(file.name);
+        } catch (error) {
+          console.error(`Lỗi khi ghi file ${file.name} vào FFmpeg:`, error);
+        }
+      }
+  
+      console.log("Hoàn tất ghi frames. Tổng số frames:", frames.length);
+  
+      // Ghi danh sách ảnh vào file text (để dùng với FFmpeg)
+      const fileList = frames.map((f) => `file '${f}'`).join("\n");
+      ffmpeg.FS("writeFile", "frames.txt", new TextEncoder().encode(fileList));
+  
+      console.log("Đã tạo file danh sách frames.txt");
+  
+      // Chuyển đổi PNG → MP4 bằng FFmpeg
+      console.log("Bắt đầu chuyển đổi ảnh thành video...");
+      await ffmpeg.run(
+        "-r", `${frameRate}`,
+        "-f", "concat",
+        "-safe", "0",
+        "-i", "frames.txt",
+        "-c:v", "libx264",
+        "-pix_fmt", "yuv420p",
+        "-crf", "18",
+        "output.mp4"
+      );
+  
+      console.log("FFmpeg đã tạo xong video!");
+  
+      // Xuất file
+      const data = ffmpeg.FS("readFile", "output.mp4");
+      const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
+  
+      console.log("Tạo link tải video:", url);
+  
+      // Tạo link tải về
       const a = document.createElement("a");
       a.href = url;
-      a.download = "recorded-video.webm";
+      a.download = "exported_video.mp4";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-
-    mediaRecorder.start();
-    setTime(0);
-    setIsPlay(true);
-    console.log("Recording started, will stop after:", duration, "seconds");
-
-    setTimeout(() => {
-      mediaRecorder.stop();
-      console.log("Recording stopped.");
-    }, duration * 1000);
+  
+      console.log("Xuất video thành công!");
+    } catch (error) {
+      console.error("Lỗi trong quá trình export video:", error);
+    }
   };
-
+  
+  
   return (
     <>
       <Button onClick={exportVideo}>export</Button>
