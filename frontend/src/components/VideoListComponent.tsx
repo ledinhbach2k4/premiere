@@ -27,7 +27,6 @@ export default function VideoListComponent() {
       // Fetch tags
       const tagsResponse = await axios.get(`/api/getAllTags`);
       setTagsData(tagsResponse.data.data);
-
       // Fetch videos based on selected tab and tags
       const params: any = { index: numberOfVid };
       if (selectedTags.length > 0) {
@@ -88,7 +87,7 @@ export default function VideoListComponent() {
             </Tabs>
 
             <Stack direction="row" spacing={1}>
-              {tagsData.length > 0
+              {tagsData && tagsData.length > 0
                 ? tagsData.map((tag: { _id: string; tagName: string }) => (
                     <Chip
                       key={tag._id}
