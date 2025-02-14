@@ -1,20 +1,20 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../api/axios";
-import { useGoogleLogin } from "@react-oauth/google"; // Import a Google login hook
-
-export const AuthContext = createContext({});
+import { useGoogleLogin } from "@react-oauth/google";
+export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    if (token) {
+    const idToken = localStorage.getItem("idToken");
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log(user)
+    if (idToken) {
       api
         .get("/auth/google", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${idToken}`,
           },
         })
         .then((res) => setUser(res.data.user))
@@ -32,28 +32,28 @@ export const AuthProvider = ({ children }) => {
     onSuccess: async (tokenResponse) => {
       try {
         // Fetch user info from Google using the access token
-        const userInfoResponse = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
-          }
-        );
-        const userInfo = await userInfoResponse.json();
+        // const userInfoResponse = await fetch(
+        //   "https://www.googleapis.com/oauth2/v3/userinfo",
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${tokenResponse.access_token}`,
+        //     },
+        //   }
+        // );
+        // const userInfo = await userInfoResponse.json();
 
-        console.log("Google User Info:", userInfo); // Debugging
+        // console.log("Google User Info:", userInfo); // Debugging
 
         // Send user's info to the backend for verification
-        const { data } = await api.post("/auth/google/token", {
-          googleId: userInfo.sub, // Google User ID
-          email: userInfo.email,
-          name: userInfo.name,
-        });
+        console.log(tokenResponse)
+        // const { data } = await api.post("/auth/google/token", {
+        //   token: tokenResponse.id_token,
+        // });
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", data.user);
-        console.log("User logged in: ", data.user);
+        // localStorage.setItem("token", data.token);
+        // localStorage.setItem("user", JSON.stringify(data.user));
+        // console.log("User logged in: ", data.user);
+        // console.log(data.token)
       } catch (error) {
         console.error("Google login failed", error);
       }
@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
     onError: (error) => {
       console.error("Google Login Error:", error);
     },
+    flow: 'auth-code',
   });
   const logout = () => {
     localStorage.removeItem("token");

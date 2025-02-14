@@ -6,6 +6,9 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+    googleId: {
+        type: String, require: true
+    },
     username: {
         type: String, require: true
     },
@@ -13,7 +16,10 @@ const userSchema = new mongoose.Schema({
         type: String, require: true
     },
     password: {
-        type: String, require: true
+        type: String, require: false
+    },
+    avatar: {
+        type: String, require: false
     },
 }); 
 

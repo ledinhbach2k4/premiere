@@ -77,10 +77,9 @@ export default function Template() {
           <EditPanel model={model} setModel={setModel} />
         </Paper>
       </Box>
-
       <Typography align="center" variant="h3">
         View More Template
-      </Typography>
+      </Typography>      
     </>
   );
 }
