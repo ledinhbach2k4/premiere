@@ -12,8 +12,6 @@ import { useState } from "react";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ObjectMap } from "@react-three/fiber";
-import * as THREE from "three";
-import { Object3DEventMap } from "three";
 import WallpaperSharpIcon from "@mui/icons-material/WallpaperSharp";
 
 export default function EditPanel(props: {
@@ -53,7 +51,7 @@ export default function EditPanel(props: {
       gltf.nodes[key].position.set(
         newPosition[0],
         newPosition[1],
-        newPosition[2]
+        newPosition[2],
       );
     };
   }

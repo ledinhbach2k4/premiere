@@ -9,7 +9,6 @@ import { useGLTF } from "@react-three/drei";
 import { ObjectMap } from "@react-three/fiber";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-
 export default function Template() {
   const { _id } = useParams<string>();
   const [vidData, setVidData] = useState<IVideo>();
@@ -26,9 +25,9 @@ export default function Template() {
    *
    *
    */
-  const [model, setModel] = useState<GLTF & ObjectMap>(gltf as unknown as GLTF & ObjectMap); // cách ép kiểu dâm tà
-
-
+  const [model, setModel] = useState<GLTF & ObjectMap>(
+    gltf as unknown as GLTF & ObjectMap
+  ); // cách ép kiểu dâm tà
 
   // lấy thông tin về video bằng Id từ backend
   const getvideoData = async (_id: string) => {
@@ -62,11 +61,7 @@ export default function Template() {
             justifyContent: "center",
           }}
         >
-          <PreviewPanel
-            _id={vidData?._id}
-            vidData={vidData}
-            model={model}
-          />
+          <PreviewPanel _id={vidData?._id} vidData={vidData} model={model} />
         </Paper>
         <Paper
           elevation={3}
@@ -79,10 +74,6 @@ export default function Template() {
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)", // Shadow for depth
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Edit Panel
-          </Typography>
-          {/* need to adjust */}
           <EditPanel model={model} setModel={setModel} />
         </Paper>
       </Box>

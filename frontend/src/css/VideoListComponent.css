@@ -58,14 +58,7 @@
   margin-bottom: 16px;
 }
 
-/* Hiệu ứng hover khi di chuột vào video */
-.video-list-preview {
-  transition: transform 0.3s ease-in-out;
-}
 
-.video-list-preview:hover {
-  transform: scale(1.05);
-}
 
 /* Nút "Load More" */
 .video-list-load-more {
@@ -76,7 +69,6 @@
 
 .video-list-load-more-btn {
   background-color: var(--mui-primary-main);
-  transition: all 0.3s ease-in-out;
   border-radius: 8px;
   padding: 10px 20px;
   cursor: pointer;
@@ -84,5 +76,4 @@
 
 .video-list-load-more-btn:hover {
   background-color: var(--mui-primary-dark);
-  transform: scale(1.05);
 }

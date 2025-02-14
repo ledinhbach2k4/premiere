@@ -39,18 +39,23 @@ export default function Preview(props: { key: string, data: IVideo }) {
         {!imageLoaded && (
           <Skeleton variant="rectangular" width={300} height={170} />
         )}
-        <img
-          src={`/vidPreview/${_id}.gif`}
-          alt={title}
+        <video
+          src={`/vidPreview/${_id}.webm`}
           style={{
             width: '300px',
             height: '170px',
             objectFit: 'cover',
             display: imageLoaded ? 'block' : 'none', 
           }}
-          onLoad={() => setImageLoaded(true)} // khi load duoc anh thi khong load skeleton nua
+          onLoadedData ={() => {setImageLoaded(true)}}
           onClick={() => {
             navigate(`/template/:${ _id }`);
+          }}
+          autoPlay
+          muted // Để autoplay hoạt động trên hầu hết trình duyệt
+          onEnded={(e) => {
+            e.currentTarget.currentTime = 0; // Reset về đầu video
+            e.currentTarget.play(); // Phát lại
           }}
         />
         <Typography variant="h5">{title}</Typography>

@@ -4,7 +4,6 @@ import {
   MenuItem,
   Toolbar,
   Typography,
-  Input,
   Avatar,
   Container,
   IconButton,
@@ -22,10 +21,12 @@ import { AuthContext } from "../contexts/AuthContext";
 
 export default function NavBar() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  // const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const themeContext = useContext(ThemeContext);
   const authContext = useContext(AuthContext); // Get user info
+
   const { user, logout } = authContext;
 
   if (!themeContext) {
@@ -138,7 +139,7 @@ export default function NavBar() {
               </Menu>
             </>
           ) : (
-            <Button variant='outlined' onClick={() => navigate("/login")}>
+            <Button variant="outlined" onClick={() => navigate("/login")}>
               <Typography>Login</Typography>
             </Button>
           )}
