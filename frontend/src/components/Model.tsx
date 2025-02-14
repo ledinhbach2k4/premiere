@@ -75,8 +75,7 @@ export default function Model(props: {
       setObjectList((prevList) => [...prevList, ...newObjectList]);
     }
 
-    gl.setClearColor(new THREE.Color(0xffffff)); // Set background thành màu trắng
-  }, [gltf, gl]);
+  }, [gltf]);
 
   // use effect cho animation
   /**

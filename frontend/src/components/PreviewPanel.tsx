@@ -21,9 +21,9 @@ import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDou
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-
-
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import * as THREE from "three";
+import { fetchFile } from "@ffmpeg/util";
 
 export default function PreviewPanel(props: {
   _id: string | undefined;
@@ -76,82 +76,89 @@ export default function PreviewPanel(props: {
   const exportVideo = async () => {
     try {
       console.log("Bắt đầu export video...");
-      
-      if (!ffmpeg.load()) {
+
+      if (!ffmpeg.loaded) {
         console.log("Đang tải FFmpeg...");
         await ffmpeg.load();
         console.log("FFmpeg đã sẵn sàng.");
       }
-  
-      const canvas = document.getElementById("canvas")?.children[0].children[0] as HTMLCanvasElement;
-      
-      console.log(canvas);  
 
+      const canvas = document.querySelector("canvas");
       if (!canvas) {
         console.error("Canvas không tìm thấy!");
         return;
       }
-  
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        console.error("Không thể lấy context của canvas!");
-        return;
-      }
-  
-      const frameRate = 30; // FPS mong muốn
-      const duration = 5; // Ghi trong 5 giây (có thể thay đổi)
+
+      const frameRate = 60; // FPS 
       const totalFrames = frameRate * duration;
       const frames: string[] = [];
-  
+
       console.log(`Bắt đầu ghi ${totalFrames} frames...`);
-  
-      // Chụp từng frame
+
       for (let i = 0; i < totalFrames; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
-  
+
         const dataURL = canvas.toDataURL("image/png");
         const blob = await (await fetch(dataURL)).blob();
-        const file = new File([blob], `frame_${i.toString().padStart(4, "0")}.png`);
-  
-        console.log(`Đã chụp frame ${i}: ${file.name}`);
-  
+        const fileName = `frame_${i.toString().padStart(4, "0")}.png`;
+
         try {
-          ffmpeg.FS("writeFile", file.name, await fetchFile(file));
-          frames.push(file.name);
+          await ffmpeg.writeFile(fileName, await fetchFile(blob));
+          frames.push(fileName);
         } catch (error) {
-          console.error(`Lỗi khi ghi file ${file.name} vào FFmpeg:`, error);
+          console.error(`Lỗi khi ghi file ${fileName}:`, error);
         }
       }
-  
+
       console.log("Hoàn tất ghi frames. Tổng số frames:", frames.length);
-  
-      // Ghi danh sách ảnh vào file text (để dùng với FFmpeg)
+
+      // Kiểm tra frame đầu tiên có tồn tại không
+      const firstFrameExists = await fileExists(frames[0]);
+      console.log("Frame đầu tiên tồn tại:", firstFrameExists);
+
+      // Tạo file frames.txt
       const fileList = frames.map((f) => `file '${f}'`).join("\n");
-      ffmpeg.FS("writeFile", "frames.txt", new TextEncoder().encode(fileList));
-  
-      console.log("Đã tạo file danh sách frames.txt");
-  
-      // Chuyển đổi PNG → MP4 bằng FFmpeg
+      await ffmpeg.writeFile("frames.txt", new TextEncoder().encode(fileList));
+      console.log("Nội dung frames.txt:\n", fileList);
+
+      // Chuyển đổi PNG → MP4 bằng danh sách file
       console.log("Bắt đầu chuyển đổi ảnh thành video...");
-      await ffmpeg.run(
-        "-r", `${frameRate}`,
-        "-f", "concat",
-        "-safe", "0",
-        "-i", "frames.txt",
-        "-c:v", "libx264",
-        "-pix_fmt", "yuv420p",
-        "-crf", "18",
-        "output.mp4"
-      );
-  
+
+      await ffmpeg.exec([
+        "-framerate",
+        `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
+        "-i",
+        "frame_%04d.png", // Định dạng tên file đầu vào
+        "-c:v",
+        "libx264", // Sử dụng codec H.264
+        "-pix_fmt",
+        "yuv420p", // Định dạng pixel
+        "-crf",
+        "1", // Chất lượng video
+        "output.mp4", // Tên file video đầu ra
+      ]);
       console.log("FFmpeg đã tạo xong video!");
-  
-      // Xuất file
-      const data = ffmpeg.FS("readFile", "output.mp4");
-      const url = URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" }));
-  
+
+      // Kiểm tra file output.mp4 có tồn tại không
+      const exists = await fileExists("output.mp4");
+      console.log("File output.mp4 tồn tại:", exists);
+
+      const fileData = await ffmpeg.readFile("output.mp4");
+      console.log(fileData.length); // Kiểm tra dung lượng file
+
+      const metadata = await ffmpeg.ffprobe(["output.mp4"]);
+      console.log("Thông tin video:", metadata);
+
+      // Đọc dữ liệu video
+      const data = await ffmpeg.readFile("output.mp4");
+      const buffer = data as Uint8Array;
+
+      // Tạo Object URL để tải về
+      const url = URL.createObjectURL(
+        new Blob([buffer], { type: "video/mp4" })
+      );
       console.log("Tạo link tải video:", url);
-  
+
       // Tạo link tải về
       const a = document.createElement("a");
       a.href = url;
@@ -159,16 +166,30 @@ export default function PreviewPanel(props: {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-  
+
       console.log("Xuất video thành công!");
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
     }
   };
-  
-  
+
+  const fileExists = async (fileName: string): Promise<boolean> => {
+    try {
+      const files = await ffmpeg.listDir("/");
+      return files.some((file) => file.name === fileName);
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra file tồn tại:", error);
+      return false;
+    }
+  };
+
   return (
     <>
+      <div
+        id="previewContainer"
+        style={{ display: "flex", flexWrap: "wrap" }}
+      ></div>
+
       <Button onClick={exportVideo}>export</Button>
       <Box
         sx={{
@@ -303,7 +324,7 @@ export default function PreviewPanel(props: {
         >
           <Typography sx={{ p: 1 }}>
             <MouseOutlinedIcon /> HOLD <br></br>
-            <b>leftclick:</b> move around <br></br>
+            <b>leftclick:</b> change perspective <br></br>
             <b>rightclick:</b> move camera
           </Typography>
         </Popover>
