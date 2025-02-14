@@ -9,6 +9,8 @@ import generateToken from "../utils/generateToken";
 import dotenv from "dotenv";
 dotenv.config();
 import { OAuth2Client } from "google-auth-library";
+import jwt from "jsonwebtoken";
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // get list of all user
@@ -63,32 +65,33 @@ export const addUser = async (req: Request, res: Response) => {
 };
 
 export const checkToken = async (req: Request, res: Response) => {
-  const { googleId, email, name } = req.body;
-
-  if (!googleId || !email || !name) {
-    res.status(400).json({ error: "Missing Google user information" });
-  } else {
-    try {
-      let user = await User.findOne({ googleId });
-  
-      if (!user) {
-        user = new User({
-          googleId,
-          username: name,
-          email,
-        });
-        await user.save();
-      }
-  
-      // Generate JWT token for authentication
-      const userToken = generateToken(user);
-  
-      res.json({ token: userToken, user });
-    } catch (error) {
-      console.error("Error processing Google login:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-
+  const { token } = req.body;
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+  const payload = ticket.getPayload();
+  const userId = payload?.sub;
+  let user = await User.findOne({ googleId: userId });
+  if (!user) {
+    user = new User({
+      googleId: userId,
+      username: payload?.name,
+      email: payload?.email,
+      avatar: payload?.picture,
+    });
+    await user.save();
   }
-
+  const accessToken = jwt.sign(
+    { user_id: user.googleId },
+    process.env.ACCESS_TOKEN_SECRET || "secet",
+    { expiresIn: "1d" }
+  );
+  console.log(accessToken);
+  res.status(200).json({
+    success: true,
+    message: "Login successful",
+    user,
+    token: accessToken,
+  });
 };
