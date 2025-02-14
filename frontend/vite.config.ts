@@ -6,20 +6,18 @@ import {config} from 'dotenv'
 
 // https://vite.dev/config/
 export default defineConfig({
-
-  
   plugins: [react()],
   define: {
     'process.env': process.env
   },
-  server: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin'
-    },
-    proxy: {
-      '/api': 'http://localhost:3000'
-    }
-  }
+  // server: {
+  //   headers: {
+  //     'Cross-Origin-Embedder-Policy': 'require-corp',
+  //     'Cross-Origin-Opener-Policy': 'same-origin'
+  //   },
+  //   proxy: {
+  //     '/api': 'http://localhost:3000'
+  //   }
+  // }
 })
 

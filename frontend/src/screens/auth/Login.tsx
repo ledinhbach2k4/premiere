@@ -1,5 +1,5 @@
 import { Avatar, Divider } from "@mui/material";
-import LockIcon from "@material-ui/icons/Lock";
+// import LockIcon from "@material-ui/icons/Lock";
 import {
   Paper,
   TableBody,
@@ -50,7 +50,7 @@ export default function Login() {
             color: "secondary",
           }}
         >
-          <LockIcon />
+          {/* <LockIcon /> */}
         </Avatar>
         <TextField
           variant="outlined"
