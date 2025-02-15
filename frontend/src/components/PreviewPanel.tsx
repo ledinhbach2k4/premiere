@@ -7,12 +7,11 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Alert,
   Popover,
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
-import Model from "../assets/js/Model";
-import { useCallback, useEffect, useState } from "react";
+import Model from "./Model";
+import { useCallback, useState } from "react";
 import { IVideo } from "../interface/type";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -20,8 +19,8 @@ import KeyboardDoubleArrowRightRoundedIcon from "@mui/icons-material/KeyboardDou
 import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoubleArrowLeftRounded";
 import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
-import { CanvasCapture } from "canvas-capture";
-import { Height } from "@material-ui/icons";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile } from "@ffmpeg/util";
 
 export default function PreviewPanel(props: {
   _id: string | undefined;
@@ -32,7 +31,6 @@ export default function PreviewPanel(props: {
   const [isPlay, setIsPlay] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(false);
 
   // nút play
   const playHandler = () => {
@@ -69,40 +67,93 @@ export default function PreviewPanel(props: {
   };
   const open = Boolean(anchorEl);
 
-  // SIÊU XUẤT
-  const exportVideo = () => {
-    const canvas = document.querySelector("canvas");
-    const stream = canvas?.captureStream(30) as MediaStream;
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-    const chunks: BlobPart[] = [];
+  // SIÊU XUẤT - Supa cum
+  const ffmpeg = new FFmpeg();
 
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        chunks.push(event.data);
+  const exportVideo = async () => {
+    try {
+      if (!ffmpeg.loaded) {
+        await ffmpeg.load();
       }
-    };
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: "video/webm" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "recorded-video.webm";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-    setTime(0);
-    mediaRecorder.start();
-    setTimeout(() => {
-      mediaRecorder.stop();
-      console.log("Recording stopped.");
-    }, duration * 1000);
+
+      // đảm bảo load được canvas
+      const canvas = document.querySelector("canvas");
+      if (!canvas) {
+        console.error("Canvas không tìm thấy!");
+        return;
+      }
+
+      const frameRate = 60; // FPS
+      const duration = 5;
+      const totalFrames = frameRate * duration;
+      const frames: string[] = [];
+
+      for (let i = 0; i < totalFrames; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
+
+        const dataURL = canvas.toDataURL("image/png");
+        const blob = await (await fetch(dataURL)).blob();
+        const fileName = `frame_${i.toString().padStart(4, "0")}.png`;
+
+        try {
+          await ffmpeg.writeFile(fileName, await fetchFile(blob));
+          frames.push(fileName);
+        } catch (error) {
+          console.error(`Lỗi khi ghi file ${fileName}:`, error);
+        }
+      }
+
+      try {
+
+        // Chuyển đổi png → MP4
+        const n = await ffmpeg.exec([
+          "-framerate",
+          `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
+          "-i",
+          "frame_%04d.png", // Định dạng tên file đầu vào
+          "-c:v",
+          "libx264", // Sử dụng codec H.264
+          "-pix_fmt",
+          "yuv420p", // Định dạng pixel
+          "-crf",
+          "1", // Chất lượng video
+          "output.mp4", // Tên file video đầu ra
+        ]);
+
+        console.log(n);
+
+        // Đọc dữ liệu video
+        const data = await ffmpeg.readFile("output.mp4");
+        const buffer = data as Uint8Array;
+
+        // Tạo Object URL để tải về
+        const url = URL.createObjectURL(
+          new Blob([buffer], { type: "video/mp4" })
+        );
+
+        // Tạo link tải về
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "output.mp4";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error(error);
+      }
+    } catch (error) {
+      console.error("Lỗi trong quá trình export video:", error);
+    }
   };
 
   return (
     <>
-      <Button onClick={exportVideo}> export </Button>
+      <div
+        id="previewContainer"
+        style={{ display: "flex", flexWrap: "wrap" }}
+      ></div>
+
+      <Button onClick={exportVideo}>export</Button>
       <Box
         sx={{
           display: "flex",
@@ -149,6 +200,7 @@ export default function PreviewPanel(props: {
           {props.vidData ? (
             <>
               <Canvas
+                id="canvas"
                 gl={{ preserveDrawingBuffer: true }}
                 style={{
                   width: "100%",
@@ -193,20 +245,13 @@ export default function PreviewPanel(props: {
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
           {isPlay ? (
-            <Slider
-              min={0}
-              max={duration}
-              step={0.01}
-              value={time}
-              onChange={timelineHandler}
-              disabled
-            />
+            <Slider min={0} max={duration} step={0.01} value={time} disabled />
           ) : (
             <Slider
               min={0}
               max={duration}
               step={0.01}
-              value={time}
+              value={time} // Nếu đang kéo, hiển thị seekTime; nếu không thì time
               onChange={timelineHandler}
             />
           )}
@@ -224,32 +269,29 @@ export default function PreviewPanel(props: {
             <KeyboardDoubleArrowRightRoundedIcon />
           </Button>
         </Box>
-        {showAlert && (
-          <Popover
-            id="mouse-over-popover"
-            sx={{ pointerEvents: "none" }}
-            open={open}
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            onClose={handlePopoverClose}
-            disableRestoreFocus
-          >
-            <Typography sx={{ p: 1 }}>
-              <MouseOutlinedIcon /> HOLD <br></br>
-              <b>leftclick:</b> move around <br></br>
-              <b>rightclick:</b> move camera
-            </Typography>
-          </Popover>
-        )}
+        <Popover
+          id="mouse-over-popover"
+          sx={{ pointerEvents: "none" }}
+          open={open}
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          onClose={handlePopoverClose}
+          disableRestoreFocus
+        >
+          <Typography sx={{ p: 1 }}>
+            <MouseOutlinedIcon /> HOLD <br></br>
+            <b>leftclick:</b> change perspective <br></br>
+            <b>rightclick:</b> move camera
+          </Typography>
+        </Popover>
       </Box>
-      
     </>
   );
 }

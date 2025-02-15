@@ -165,8 +165,6 @@ export const getVidById = async (req: Request, res: Response) => {
   try {
     const _id = req.query._id as string;
 
-    console.log(_id);
-
     if (!_id) {
       res.status(400).json({
         message: "no Id provided",
