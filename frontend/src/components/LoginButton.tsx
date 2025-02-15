@@ -1,26 +1,24 @@
-import { useContext } from "react";
-import GoogleIcon from "@mui/icons-material/Google"; // Import a Google icon
-import { Button } from "@mui/material"; // Import a button
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 import api from "../api/axios";
+import {jwtDecode} from "jwt-decode";
 
 export default function LoginButton() {
-  const { login } = useContext(AuthContext);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const handleSuccess = async (tokenResponse) => {
     const { credential } = tokenResponse;
-    // const decodedToken = jwtDecode(credential);
-    const res = await api.post('/auth/google/token', {
-      token: credential,
-    })
-    const token = res.data.token
-
-    localStorage.setItem("token", token);
+    // console.log(token)
+    // body: {token: token}
+    await api.post(
+      "/auth/google/token",
+      { credential },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    localStorage.setItem("credential", credential);
+    console.log(localStorage.getItem("credential"));
+    // navigate("/");
   }
 
   return (

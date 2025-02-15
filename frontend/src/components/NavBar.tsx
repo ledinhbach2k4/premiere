@@ -18,6 +18,7 @@ import React, { useContext, useState } from "react";
 import { ThemeContext } from "../contexts/ThemeContext"; // Import Context
 // useContext to get user info
 import { AuthContext } from "../contexts/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 export default function NavBar() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -27,8 +28,8 @@ export default function NavBar() {
   const themeContext = useContext(ThemeContext);
   const authContext = useContext(AuthContext); // Get user info
 
-  const { user, logout } = authContext;
-
+  const { user, logout  } = authContext;
+  // const userPhoto = jwtDecode(localStorage.getItem("credential")).picture;
   if (!themeContext) {
     throw new Error("NavBar must be used within a ThemeProviderWrapper");
   }
@@ -108,7 +109,7 @@ export default function NavBar() {
           {user ? (
             <>
               <IconButton onClick={handleOpenUserMenu}>
-                <Avatar alt="Mila" src="/mila.webp" />
+                <Avatar alt={user.username} src={user.avatar} />
               </IconButton>
               <Menu
                 sx={{ mt: "45px" }}
