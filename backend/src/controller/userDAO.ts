@@ -5,7 +5,6 @@
 
 import User from "../model/user";
 import { Request, Response } from "express";
-import generateToken from "../utils/generateToken";
 import dotenv from "dotenv";
 dotenv.config();
 import { OAuth2Client } from "google-auth-library";
@@ -65,33 +64,41 @@ export const addUser = async (req: Request, res: Response) => {
 };
 
 export const checkToken = async (req: Request, res: Response) => {
-  const { token } = req.body;
-  const ticket = await client.verifyIdToken({
-    idToken: token,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-  const userId = payload?.sub;
-  let user = await User.findOne({ googleId: userId });
-  if (!user) {
-    user = new User({
-      googleId: userId,
-      username: payload?.name,
-      email: payload?.email,
-      avatar: payload?.picture,
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      res.status(400).json({ success: false, message: "No token" });
+      return;
+    }
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
-    await user.save();
+    const payload = ticket.getPayload();
+    if (!payload) {
+      res.status(401).json({ success: false, message: "Bad token" });
+      return;
+    }
+    const userId = payload?.sub;
+    let user = await User.findOne({ googleId: userId });
+    if (!user) {
+      user = new User({
+        googleId: userId,
+        username: payload?.name,
+        email: payload?.email,
+        avatar: payload?.picture,
+      });
+      await user.save();
+    }
+    console.log(user);
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user,
+    });
+    return;
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server bi Gay" });
+    return;
   }
-  const accessToken = jwt.sign(
-    { user_id: user.googleId },
-    process.env.ACCESS_TOKEN_SECRET || "secet",
-    { expiresIn: "1d" }
-  );
-  console.log(accessToken);
-  res.status(200).json({
-    success: true,
-    message: "Login successful",
-    user,
-    token: accessToken,
-  });
 };
