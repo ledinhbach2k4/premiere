@@ -8,8 +8,6 @@ import {
   Checkbox,
   FormControlLabel,
   Popover,
-  Dialog,
-  IconButton,
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "./Model";
@@ -22,7 +20,6 @@ import KeyboardDoubleArrowLeftRoundedIcon from "@mui/icons-material/KeyboardDoub
 import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import * as THREE from "three";
 import { fetchFile } from "@ffmpeg/util";
 
 export default function PreviewPanel(props: {
@@ -70,30 +67,26 @@ export default function PreviewPanel(props: {
   };
   const open = Boolean(anchorEl);
 
-  // SIÊU XUẤT
+  // SIÊU XUẤT - Supa cum
   const ffmpeg = new FFmpeg();
 
   const exportVideo = async () => {
     try {
-      console.log("Bắt đầu export video...");
-
       if (!ffmpeg.loaded) {
-        console.log("Đang tải FFmpeg...");
         await ffmpeg.load();
-        console.log("FFmpeg đã sẵn sàng.");
       }
 
+      // đảm bảo load được canvas
       const canvas = document.querySelector("canvas");
       if (!canvas) {
         console.error("Canvas không tìm thấy!");
         return;
       }
 
-      const frameRate = 60; // FPS 
+      const frameRate = 60; // FPS
+      const duration = 5;
       const totalFrames = frameRate * duration;
       const frames: string[] = [];
-
-      console.log(`Bắt đầu ghi ${totalFrames} frames...`);
 
       for (let i = 0; i < totalFrames; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
@@ -110,76 +103,46 @@ export default function PreviewPanel(props: {
         }
       }
 
-      console.log("Hoàn tất ghi frames. Tổng số frames:", frames.length);
+      try {
 
-      // Kiểm tra frame đầu tiên có tồn tại không
-      const firstFrameExists = await fileExists(frames[0]);
-      console.log("Frame đầu tiên tồn tại:", firstFrameExists);
+        // Chuyển đổi png → MP4
+        const n = await ffmpeg.exec([
+          "-framerate",
+          `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
+          "-i",
+          "frame_%04d.png", // Định dạng tên file đầu vào
+          "-c:v",
+          "libx264", // Sử dụng codec H.264
+          "-pix_fmt",
+          "yuv420p", // Định dạng pixel
+          "-crf",
+          "1", // Chất lượng video
+          "output.mp4", // Tên file video đầu ra
+        ]);
 
-      // Tạo file frames.txt
-      const fileList = frames.map((f) => `file '${f}'`).join("\n");
-      await ffmpeg.writeFile("frames.txt", new TextEncoder().encode(fileList));
-      console.log("Nội dung frames.txt:\n", fileList);
+        console.log(n);
 
-      // Chuyển đổi PNG → MP4 bằng danh sách file
-      console.log("Bắt đầu chuyển đổi ảnh thành video...");
+        // Đọc dữ liệu video
+        const data = await ffmpeg.readFile("output.mp4");
+        const buffer = data as Uint8Array;
 
-      await ffmpeg.exec([
-        "-framerate",
-        `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
-        "-i",
-        "frame_%04d.png", // Định dạng tên file đầu vào
-        "-c:v",
-        "libx264", // Sử dụng codec H.264
-        "-pix_fmt",
-        "yuv420p", // Định dạng pixel
-        "-crf",
-        "1", // Chất lượng video
-        "output.mp4", // Tên file video đầu ra
-      ]);
-      console.log("FFmpeg đã tạo xong video!");
+        // Tạo Object URL để tải về
+        const url = URL.createObjectURL(
+          new Blob([buffer], { type: "video/mp4" })
+        );
 
-      // Kiểm tra file output.mp4 có tồn tại không
-      const exists = await fileExists("output.mp4");
-      console.log("File output.mp4 tồn tại:", exists);
-
-      const fileData = await ffmpeg.readFile("output.mp4");
-      console.log(fileData.length); // Kiểm tra dung lượng file
-
-      const metadata = await ffmpeg.ffprobe(["output.mp4"]);
-      console.log("Thông tin video:", metadata);
-
-      // Đọc dữ liệu video
-      const data = await ffmpeg.readFile("output.mp4");
-      const buffer = data as Uint8Array;
-
-      // Tạo Object URL để tải về
-      const url = URL.createObjectURL(
-        new Blob([buffer], { type: "video/mp4" })
-      );
-      console.log("Tạo link tải video:", url);
-
-      // Tạo link tải về
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "exported_video.mp4";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      console.log("Xuất video thành công!");
+        // Tạo link tải về
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "output.mp4";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error(error);
+      }
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
-    }
-  };
-
-  const fileExists = async (fileName: string): Promise<boolean> => {
-    try {
-      const files = await ffmpeg.listDir("/");
-      return files.some((file) => file.name === fileName);
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra file tồn tại:", error);
-      return false;
     }
   };
 
