@@ -28,7 +28,7 @@ export default function InfiniteSlider() {
           textAlign: "center",
           zIndex: 1,
           "&:hover": {
-            color: "#FFD700",
+            color: { sm: "primary.main", md: "secondary.main" },
             transition: "color 0.3s ease-in-out",
           },
         }}
@@ -96,7 +96,7 @@ export default function InfiniteSlider() {
         style={{
           position: "relative",
           color: "gray",
-          height:   5,
+          height: 5,
         }}
       />
     </>

@@ -75,7 +75,7 @@ export default function HomepageIntro() {
               textAlign: "center",
               zIndex: 1,
               "&:hover": {
-                color: "#FFD700",
+                color: { sm: "primary.main", md: "secondary.main" },
                 transition: "color 0.3s ease-in-out",
               },
             }}
