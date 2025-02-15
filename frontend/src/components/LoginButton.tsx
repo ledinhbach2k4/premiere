@@ -18,7 +18,7 @@ export default function LoginButton() {
     );
     localStorage.setItem("credential", credential);
     console.log(localStorage.getItem("credential"));
-    // navigate("/");
+    navigate("/");
   }
 
   return (

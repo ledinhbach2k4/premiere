@@ -69,7 +69,7 @@ export default function VideoListComponent() {
     <>
       <Box className="video-list-container">
         <Paper className="video-list-paper">
-          <Typography variant="h6" align="center" sx={{ mb: 3 }}>
+          <Typography variant="h5" align="center" sx={{ mb: 3 }}>
             View All Video Template
           </Typography>
           <SearchBar setSearchQuery={setSearchQuery} />
