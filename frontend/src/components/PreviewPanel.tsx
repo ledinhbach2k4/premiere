@@ -70,11 +70,21 @@ export default function PreviewPanel(props: {
   // SIÊU XUẤT - Supa cum
   const ffmpeg = new FFmpeg();
 
+  // log ffmpeg
+  ffmpeg.on("log", (e) => {
+    console.log(e);
+  });
+
+  const loadFFmpeg = async () => {
+    if (!ffmpeg.loaded) {
+      await ffmpeg.load();
+      console.log("FFmpeg loaded successfully");
+    }
+  };
+
   const exportVideo = async () => {
     try {
-      if (!ffmpeg.loaded) {
-        await ffmpeg.load();
-      }
+      await loadFFmpeg();
 
       // đảm bảo load được canvas
       const canvas = document.querySelector("canvas");
@@ -84,11 +94,10 @@ export default function PreviewPanel(props: {
       }
 
       const frameRate = 60; // FPS
-      const duration = 5;
       const totalFrames = frameRate * duration;
       const frames: string[] = [];
 
-      for (let i = 0; i < totalFrames; i++) {
+      for (let i = 0; i <= totalFrames; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
 
         const dataURL = canvas.toDataURL("image/png");
@@ -104,9 +113,8 @@ export default function PreviewPanel(props: {
       }
 
       try {
-
         // Chuyển đổi png → MP4
-        const n = await ffmpeg.exec([
+        await ffmpeg.exec([
           "-framerate",
           `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
           "-i",
@@ -119,28 +127,26 @@ export default function PreviewPanel(props: {
           "1", // Chất lượng video
           "output.mp4", // Tên file video đầu ra
         ]);
-
-        console.log(n);
-
-        // Đọc dữ liệu video
-        const data = await ffmpeg.readFile("output.mp4");
-        const buffer = data as Uint8Array;
-
-        // Tạo Object URL để tải về
-        const url = URL.createObjectURL(
-          new Blob([buffer], { type: "video/mp4" })
-        );
-
-        // Tạo link tải về
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "output.mp4";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
       } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi chạy FFmpeg exec:", error);
       }
+
+      // Đọc dữ liệu video
+      const data = await ffmpeg.readFile("output.mp4");
+      const buffer = data as Uint8Array;
+
+      // Tạo Object URL để tải về
+      const url = URL.createObjectURL(
+        new Blob([buffer], { type: "video/mp4" })
+      );
+
+      // Tạo link tải về
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "output.mp4";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
     }
