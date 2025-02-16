@@ -148,10 +148,10 @@ export default function PreviewPanel(props: {
 
   return (
     <>
-      <div
+      {/* <div
         id="previewContainer"
         style={{ display: "flex", flexWrap: "wrap" }}
-      ></div>
+      ></div> */}
 
       <Button onClick={exportVideo}>export</Button>
       <Box
@@ -245,7 +245,7 @@ export default function PreviewPanel(props: {
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
           {isPlay ? (
-            <Slider min={0} max={duration} step={0.01} value={time} disabled />
+            <Slider min={0} max={duration} step={0.01} value={time} />
           ) : (
             <Slider
               min={0}
