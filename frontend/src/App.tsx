@@ -16,7 +16,8 @@ export default function App() {
       }}
     >
       <NavBar />
-      <Background />      {/* Background màn hình TV cũ */}
+      {/* Background màn hình TV cũ */}
+      <Background />      
       <Container
         sx={{
           flex: 1,

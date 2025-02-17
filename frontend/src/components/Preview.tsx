@@ -37,7 +37,8 @@ export default function Preview(props: { key: string, data: IVideo }) {
 
       >
         {!imageLoaded && (
-          <Skeleton variant="rectangular" width={300} height={170} />
+          <></>
+          // <Skeleton variant="rectangular" width={300} height={170} />
         )}
         <video
           src={`/vidPreview/${_id}.webm`}
