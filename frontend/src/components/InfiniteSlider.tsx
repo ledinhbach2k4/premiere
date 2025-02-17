@@ -85,7 +85,8 @@ export default function InfiniteSlider() {
                   },
                 }}
               />
-              <Typography sx={{ p: 1 }}>
+              {/* h5 */}
+              <Typography sx={{ color: "white" }}>
                 {youtuber.subscribe} SUBSCRIBER
               </Typography>
             </Box>

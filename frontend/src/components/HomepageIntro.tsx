@@ -13,7 +13,7 @@ export default function HomepageIntro() {
     <>
       <Box sx={{ textAlign: "center", my: 4 }}>
         {/* Banner */}
-        <Box
+        {/* <Box
           sx={{
             position: "relative",
             height: "100px",
@@ -30,7 +30,6 @@ export default function HomepageIntro() {
             },
           }}
         >
-          {/* Video Background */}
           <video
             autoPlay
             loop
@@ -48,7 +47,7 @@ export default function HomepageIntro() {
             <source src="/1200X400.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-        </Box>
+        </Box> */}
 
         <Box
           sx={{
@@ -85,7 +84,7 @@ export default function HomepageIntro() {
         </Box>
 
         {/* List of YouTubers */}
-        <InfiniteSlider />
+        {/* <InfiniteSlider /> */}
       </Box>
     </>
   );
