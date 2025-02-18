@@ -31,6 +31,7 @@ export default function PreviewPanel(props: {
   const [isPlay, setIsPlay] = useState<boolean>(true);
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   // nút play
   const playHandler = () => {
@@ -84,6 +85,9 @@ export default function PreviewPanel(props: {
 
   const exportVideo = async () => {
     try {
+
+      setIsExporting(true);
+
       await loadFFmpeg();
 
       // đảm bảo load được canvas
@@ -147,6 +151,9 @@ export default function PreviewPanel(props: {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      setIsExporting(false);
+
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
     }
@@ -158,6 +165,7 @@ export default function PreviewPanel(props: {
         id="previewContainer"
         style={{ display: "flex", flexWrap: "wrap" }}
       ></div> */}
+      
 
       <Button onClick={exportVideo}>export</Button>
       <Box
@@ -209,8 +217,8 @@ export default function PreviewPanel(props: {
                 id="canvas"
                 gl={{ preserveDrawingBuffer: true }}
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: isExporting ? "1920px" : "100%",
+                  height: isExporting ? "1080px" : "100%",
                   backgroundColor: "#000",
                 }}
               >
