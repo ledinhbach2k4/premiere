@@ -8,6 +8,11 @@ import {
   Checkbox,
   FormControlLabel,
   Popover,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  LinearProgress,
+  DialogActions,
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "./Model";
@@ -32,6 +37,16 @@ export default function PreviewPanel(props: {
   const [duration, setDuration] = useState<number>(0);
   const [isOrbitControl, setOrbitControl] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [progressBar, setProgressBar] = useState<number>(0);
+  const [bufferBar, setBufferBar] = useState<number>(0);
+  const [totalFrames, setTotalFrame] = useState<number>(0);
+
+  // xử lí dialog khi export
+  const handleClose = () => {
+    setIsExporting(false);
+    setProgressBar(0);
+    setBufferBar(10);
+  };
 
   // nút play
   const playHandler = () => {
@@ -72,8 +87,8 @@ export default function PreviewPanel(props: {
   const ffmpeg = new FFmpeg();
 
   // log ffmpeg
-  ffmpeg.on("log", (e) => {
-    console.log(e);
+  ffmpeg.on("progress", (e) => {
+    setProgressBar(e.progress * 100);
   });
 
   const loadFFmpeg = async () => {
@@ -83,9 +98,9 @@ export default function PreviewPanel(props: {
     }
   };
 
+  // export thành video
   const exportVideo = async () => {
     try {
-
       setIsExporting(true);
 
       await loadFFmpeg();
@@ -99,7 +114,16 @@ export default function PreviewPanel(props: {
 
       const frameRate = 60; // FPS
       const totalFrames = frameRate * duration;
+      setTotalFrame(totalFrames);
+      console.log(totalFrames);
       const frames: string[] = [];
+      const calUnit = 100 / totalFrames;
+      const previewContainer = document.getElementById("previewContainer");
+      const previewImage = document.createElement("img");
+      previewImage.style.width = "160px";
+      previewImage.style.height = "90px";
+
+      previewContainer?.appendChild(previewImage);
 
       for (let i = 0; i <= totalFrames; i++) {
         await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
@@ -107,6 +131,8 @@ export default function PreviewPanel(props: {
         const dataURL = canvas.toDataURL("image/png");
         const blob = await (await fetch(dataURL)).blob();
         const fileName = `frame_${i.toString().padStart(4, "0")}.png`;
+        setBufferBar((prev) => prev + calUnit);
+        previewImage.src = dataURL;
 
         try {
           await ffmpeg.writeFile(fileName, await fetchFile(blob));
@@ -117,8 +143,12 @@ export default function PreviewPanel(props: {
       }
 
       try {
+
+
         // Chuyển đổi png → MP4
         await ffmpeg.exec([
+          "-progress",
+          "log.txt",
           "-framerate",
           `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
           "-i",
@@ -153,7 +183,7 @@ export default function PreviewPanel(props: {
       document.body.removeChild(a);
 
       setIsExporting(false);
-
+      setProgressBar(0);
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
     }
@@ -161,11 +191,31 @@ export default function PreviewPanel(props: {
 
   return (
     <>
-      {/* <div
-        id="previewContainer"
-        style={{ display: "flex", flexWrap: "wrap" }}
-      ></div> */}
-      
+      {isExporting ? (
+        <>
+          <Dialog open={isExporting} maxWidth="sm" fullWidth>
+            <DialogTitle> Exporting Video </DialogTitle>
+            <DialogContent>
+              <div
+                id="previewContainer"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignContent: "center",
+                }}
+              ></div>
+              <LinearProgress
+                variant="buffer"
+                value={progressBar}
+                valueBuffer={bufferBar}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      ) : null}
 
       <Button onClick={exportVideo}>export</Button>
       <Box
@@ -259,7 +309,7 @@ export default function PreviewPanel(props: {
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
           {isPlay ? (
-            <Slider min={0} max={duration} step={0.01} value={time} />
+            <Slider min={0} max={duration} step={0.01} value={time} disabled />
           ) : (
             <Slider
               min={0}
@@ -281,7 +331,7 @@ export default function PreviewPanel(props: {
           </Button>
           <Button onClick={increaseTime}>
             <KeyboardDoubleArrowRightRoundedIcon />
-          </Button>
+          </Button>{" "}
         </Box>
         <Popover
           id="mouse-over-popover"

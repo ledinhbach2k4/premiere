@@ -56,9 +56,6 @@ export const getNext10Vid = async (req: Request, res: Response) => {
     const tags = req.query.tags;
     const searchQuery = req.query.searchQuery as string | undefined;
 
-    console.log(searchQuery);
-    console.log(123);
-
     let filter: any = {};
     if (tags && Array.isArray(tags) && tags.length > 0) {
       filter.tags = { $all: tags };
@@ -171,6 +168,8 @@ export const getVidById = async (req: Request, res: Response) => {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
+
+    console
 
     // check if _id is a Hex String or not
     if (!isObjectIdOrHexString(_id)) {
