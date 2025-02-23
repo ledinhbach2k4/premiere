@@ -5,6 +5,7 @@ import About from "../screens/About";
 import Login from "../screens/auth/Login";
 import Account from "../screens/Account";
 import Template from "../screens/Template";
+import Admin from "../screens/admin/Admin";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  {
+    path: "/admin",
+    element: <Admin/>,
+  }
 ]);
 
 export default router;
