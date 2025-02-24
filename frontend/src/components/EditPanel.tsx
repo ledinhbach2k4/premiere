@@ -8,22 +8,53 @@ import {
   Skeleton,
   InputAdornment,
 } from "@mui/material";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ObjectMap } from "@react-three/fiber";
 import WallpaperSharpIcon from "@mui/icons-material/WallpaperSharp";
+import DropZone from "react-dropzone";
+import { PostAdd } from "@mui/icons-material";
+import * as THREE from "three";
 
 export default function EditPanel(props: {
   model: GLTF & ObjectMap;
   setModel: React.Dispatch<React.SetStateAction<GLTF & ObjectMap>>;
 }) {
-  // không biết ép kiểu cho function
+  const [files, setFiles] = useState([]);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState<number[]>([0, 0, 0]);
   const [tabValue, setTabValue] = useState<string>("object");
+  const [selectedObject, setSelectedObject] =
+    useState<THREE.Object3D<THREE.Object3DEventMap> | null>(null);
   const gltf = props.model;
 
+  //upload ảnh
+  const handleDropTexture = (acceptedFiles) => {
+    // set texture cho tab object được chọn
+    if (!acceptedFiles) return;
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const textureUrl = e.target?.result as string;
+
+      props.setModel((prevModel) => {
+        const updatedModel = { ...prevModel };
+        // Cập nhật texture cho object được chọn
+        const obj = updatedModel.nodes[tabValue];
+        if (obj) {
+          const m = gltf.materials[tabValue].toJSON;
+        }
+
+        return updatedModel;
+      });
+    };
+
+    console.log(gltf.materials['Pig']);
+    console.log(gltf);
+
+
+  };
   // thay đổi kích thước
   function scaleChangeHandle(key: string) {
     return (_event: Event, value: number | number[], _activeThumb: number) => {
@@ -51,7 +82,7 @@ export default function EditPanel(props: {
       gltf.nodes[key].position.set(
         newPosition[0],
         newPosition[1],
-        newPosition[2],
+        newPosition[2]
       );
     };
   }
@@ -102,7 +133,7 @@ export default function EditPanel(props: {
             sx={{ p: 2, display: tabValue === key ? "block" : "none" }}
           >
             {/* scale */}
-            <Typography> scale </Typography>
+            <Typography variant="h6"> scale </Typography>
             <Slider
               value={scale}
               onChange={scaleChangeHandle(key)}
@@ -112,7 +143,7 @@ export default function EditPanel(props: {
             />
 
             {/* position */}
-            <Typography> position </Typography>
+            <Typography variant="h6"> position </Typography>
             <Box display={"flex"} alignItems="center" marginBottom={"10px"}>
               <Slider
                 value={position[0]}
@@ -180,6 +211,36 @@ export default function EditPanel(props: {
                 variant="standard"
               />
             </Box>
+
+            {/* texture */}
+            <Typography variant="h6"> Texture </Typography>
+            <DropZone onDrop={handleDropTexture}>
+              {({ getRootProps, getInputProps }) => (
+                <Box
+                  {...getRootProps()}
+                  sx={{
+                    border: "2px dashed",
+                    borderColor: "primary.main",
+                    borderRadius: 2,
+                    p: 3,
+                    mt: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                    cursor: "pointer",
+                    flex: 1,
+                  }}
+                >
+                  <input {...getInputProps()} />
+                  <PostAdd fontSize="large" color="primary" />
+                  <Typography variant="body2" color="textSecondary">
+                    Hoặc kéo thả file vào đây
+                  </Typography>
+                </Box>
+              )}
+            </DropZone>
           </Box>
         ))}
     </Box>

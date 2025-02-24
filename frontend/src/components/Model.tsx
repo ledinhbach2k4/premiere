@@ -1,15 +1,16 @@
 import { ObjectMap, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, OrbitControls, useAnimations } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three"; // Dùng tạm three, tối sẽ đọc doc chuyển sang fiber
+import * as THREE from "three"; 
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Object3DEventMap } from "three";
-import { mix } from "three/src/nodes/TSL.js";
 
 /**
- *-----------------------------|
- *-------- SETUP ZONE ---------|
- *-----------------------------|
+ *--------------------------------------------------------------------------------------------------------------|
+ *--------------------------------------------------------------------------------------------------------------|
+ *-------- SETUP ZONE ----------------- SETUP ZONE ----------------- SETUP ZONE ----------------- SETUP ZONE ---|
+ *--------------------------------------------------------------------------------------------------------------|
+ *--------------------------------------------------------------------------------------------------------------|
  *
  *
  * các object CÓ THỂ ĐIỀU CHỈNH cần đặt tên bắt đầu bằng 'object'
@@ -40,8 +41,8 @@ export default function Model(props: {
   // Tạo AnimationMixer cho toàn bộ scene
   const mixer = useRef<THREE.AnimationMixer | null>(null);
 
-  // set cua chatgpt
-  const { set, gl } = useThree();
+  // set 
+  const { set } = useThree();
 
   // thời lượng của animation
   // Lấy thời lượng 1 animation khong phai camera
@@ -67,7 +68,6 @@ export default function Model(props: {
       Object.keys(gltf.nodes)
         .filter((key) => key.startsWith("object"))
         .map((key) => {
-          console.log(key);
           newObjectList.push(gltf.nodes[key]);
         });
 
@@ -84,7 +84,6 @@ export default function Model(props: {
    * (update: sẽ chạy animation của toàn bộ scene thay vì animation của từng object)
    *
    */
-
   useEffect(() => {
     if (gltf.cameras.length > 0) {
       const gltfCamera = gltf.cameras[0] as THREE.PerspectiveCamera; // Ép kiểu theo Threejs
@@ -105,9 +104,14 @@ export default function Model(props: {
     }
   }, [gltf, set]); // use effect sẽ chạy nếu có sự thay đổi gltf hoặc set
 
-  /**----------------------------|
-   *-------- FUNCTION ZONE-------|
-   * ----------------------------*/
+  /**
+   * ----------------------------------------------------------------------------------------------------------------|
+   * ----------------------------------------------------------------------------------------------------------------|
+   * ------- FUNCTION ZONE-------------- FUNCTION ZONE-------------- FUNCTION ZONE-------------- FUNCTION ZONE-------|
+   * ----------------------------------------------------------------------------------------------------------------|
+   * ----------------------------------------------------------------------------------------------------------------|
+   * 
+   */
 
   // nếu slider timeline thay đổi thì sẽ chạy cái này
 
@@ -120,7 +124,7 @@ export default function Model(props: {
   }, [props.time]);
 
   // Chạy animation mỗi frame
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (mixer.current) {
       if (props.isPlay) {
         hasSetTime.current = false;
@@ -148,6 +152,8 @@ export default function Model(props: {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
+
+
 
       {/* load model từ danh sách những model có thể thay đổi */}
       {objectList.map((obj, index) => (

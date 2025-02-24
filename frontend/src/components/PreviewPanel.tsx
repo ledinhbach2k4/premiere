@@ -45,7 +45,8 @@ export default function PreviewPanel(props: {
   const handleClose = () => {
     setIsExporting(false);
     setProgressBar(0);
-    setBufferBar(10);
+    setBufferBar(0);
+    setTotalFrame(0);
   };
 
   // nút play
@@ -143,8 +144,6 @@ export default function PreviewPanel(props: {
       }
 
       try {
-
-
         // Chuyển đổi png → MP4
         await ffmpeg.exec([
           "-progress",
@@ -182,8 +181,8 @@ export default function PreviewPanel(props: {
       a.click();
       document.body.removeChild(a);
 
-      setIsExporting(false);
-      setProgressBar(0);
+      // đóng dialog
+      handleClose();
     } catch (error) {
       console.error("Lỗi trong quá trình export video:", error);
     }
@@ -204,6 +203,7 @@ export default function PreviewPanel(props: {
                   alignContent: "center",
                 }}
               ></div>
+              <Typography> exporting video ... </Typography>
               <LinearProgress
                 variant="buffer"
                 value={progressBar}
@@ -315,7 +315,7 @@ export default function PreviewPanel(props: {
               min={0}
               max={duration}
               step={0.01}
-              value={time} // Nếu đang kéo, hiển thị seekTime; nếu không thì time
+              value={time} 
               onChange={timelineHandler}
             />
           )}
