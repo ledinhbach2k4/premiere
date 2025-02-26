@@ -239,4 +239,42 @@ router.post('/upload', upload.single('thumbnail'), async (req, res) => {
     }
 })
 
+const decryptImage = (encryptedData: { iv: string; data: string }) => {
+  const iv = Buffer.from(encryptedData.iv, "hex");
+  const encryptedText = Buffer.from(encryptedData.data, "hex");
+  const decipher = crypto.createDecipheriv(algorithm, SECRET_KEY, iv);
+  const decrypted = Buffer.concat([
+    decipher.update(encryptedText),
+    decipher.final(),
+  ]);
+  return decrypted;
+};
+
+router.get('/getall', async (req, res) => {
+    try {
+        const templates = await Template.find();
+        const testTemplate = templates[12];
+        // hiện tại chỉ có tấm số 12 là có =)) png
+        if (!testTemplate.thumbnail) {
+            res.status(404).json({
+                message: "No image found",
+            })
+        } else {
+            const decrypted = decryptImage(JSON.parse(testTemplate.thumbnail.toString()));
+            const base64Image = `data:image/png;base64,${decrypted.toString('base64')}`;
+            
+            res.status(200).json({
+                _id: testTemplate._id,
+                title: testTemplate.title,
+                likeNum: testTemplate.likeNum,
+                thumbnail: base64Image,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            error: error,
+        })
+    }
+}
+)
 export default router;
