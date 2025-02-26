@@ -13,8 +13,6 @@ import cors from "cors";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 app.use(cors());
 
@@ -40,8 +38,10 @@ app.use(express.urlencoded({ extended: true })); // For form data
 
 // Middleware to serve Swagger UI
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json({limit: '16mb'}));
+app.use(express.urlencoded({limit: '16mb', extended: true}));
 app.use(express.static("public"));
+// tăng upload file size lên 16mb cho upload video/img
 
 // Register routes  
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

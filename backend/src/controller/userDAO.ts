@@ -90,7 +90,7 @@ export const checkToken = async (req: Request, res: Response) => {
       });
       await user.save();
     }
-    console.log(user);
+    // console.log(user);
     res.status(200).json({
       success: true,
       message: "Login successful",
