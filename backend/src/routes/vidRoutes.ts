@@ -12,6 +12,11 @@
 import express from 'express';
 import { addVid, deleteVidById, getNext10Vid, get9VidSortByLiked, deleteAllVids, getVidById } from '../controller/vidDAO';
 import swaggerJSDoc from 'swagger-jsdoc';
+import multer from 'multer';
+import crypto from 'crypto';
+import env from 'dotenv';
+env.config();
+
 const router = express.Router();
 
 /**
@@ -174,6 +179,64 @@ router.get('/api/get9VidSortByLiked', get9VidSortByLiked );
  */
 router.get('/api/getVidById', getVidById );
 
+const upload = multer({storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 16 * 1024 * 1024, // 16MB
+    },
+})
+const algorithm = "aes-256-cbc";
+const SECRET_KEY = Buffer.from(
+  process.env.SECRET_FILE_ENCRYPTION_KEY ||
+    "25f2bb2f199d24475c2c57966dbb3be9a9ac3d6ac709bc0ca38de4b69677a3a9",
+  "hex"
+);
+if (SECRET_KEY.length !== 32) {
+  throw new Error(
+    "Secret key must be 32 bytes (AES-256 requires 256-bit key)."
+  );
+}
 
+const encryptImage = (buffer: any) => {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, SECRET_KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+  return { 
+    iv: iv.toString("hex"), 
+    data: encrypted.toString("hex") 
+  };
+}
+import Template from '../model/vid';
+router.post('/upload', upload.single('thumbnail'), async (req, res) => {
+    try {
+        console.log("File Received:", req.file); // Debugging line
+        console.log("Request Body:", req.body);
+
+        const { title, likeNum, releaseDate } = req.body;
+        if (!req.file){
+            res.status(400).json({
+                message: "No file uploaded",
+            })
+        }
+
+        const encrypted = encryptImage(req?.file?.buffer);
+        const template = new Template({
+            title,
+            likeNum,
+            thumbnail: Buffer.from(JSON.stringify(encrypted)),
+        })
+        await template
+          .save()
+          .then(() => console.log("Saved to MongoDB:", template))
+          .catch((err) => console.error("MongoDB Save Error:", err));
+
+        res.status(201).json({
+            message: "File uploaded successfully",
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error,
+        })
+    }
+})
 
 export default router;
