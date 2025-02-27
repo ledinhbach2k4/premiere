@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { Canvas, ObjectMap } from "@react-three/fiber";
 import Model from "./Model";
-import { useCallback, useState } from "react";
+import { SyntheticEvent, useCallback, useState } from "react";
 import { IVideo } from "../interface/type";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -56,6 +56,7 @@ export default function PreviewPanel(props: {
 
   // xử lí timeline
   const timelineHandler = (_event: Event, newValue: number | number[]) => {
+    setIsPlay(false);
     setTime(newValue as number);
   };
 
@@ -188,6 +189,8 @@ export default function PreviewPanel(props: {
     }
   };
 
+
+
   return (
     <>
       {isExporting ? (
@@ -308,17 +311,13 @@ export default function PreviewPanel(props: {
       >
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
-          {isPlay ? (
-            <Slider min={0} max={duration} step={0.01} value={time} disabled />
-          ) : (
             <Slider
               min={0}
               max={duration}
-              step={0.01}
+              step={0.1}
               value={time} 
               onChange={timelineHandler}
             />
-          )}
           <Typography marginLeft={2}> {formatTime(duration)} </Typography>
         </Box>
 

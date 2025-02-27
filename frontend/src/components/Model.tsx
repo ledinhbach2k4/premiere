@@ -115,7 +115,6 @@ export default function Model(props: {
 
   // nếu slider timeline thay đổi thì sẽ chạy cái này
 
-  const hasSetTime = useRef<boolean>(false); // đảm bảo set Time chỉ chạy 1 lần trong useFrame
 
   useEffect(() => {
     if (mixer.current) {
@@ -124,17 +123,14 @@ export default function Model(props: {
   }, [props.time]);
 
   // Chạy animation mỗi frame
-  useFrame((_state, delta) => {
+  useFrame(async (_state, delta) => {
     if (mixer.current) {
       if (props.isPlay) {
-        hasSetTime.current = false;
         mixer.current.update(delta);
         if (mixer.current.time >= duration) {
-          mixer.current.setTime(0);
+          mixer.current.setTime(0); // replay
+          props.setTime(0);
         }
-      } else if(!hasSetTime.current) {
-        props.setTime(mixer.current.time);
-        hasSetTime.current = true;
       }
     }
   });
