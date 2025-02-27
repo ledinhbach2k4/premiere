@@ -30,6 +30,8 @@ export default function EditPanel(props: {
   const gltf = props.model;
 
   //upload ảnh
+
+  // https://www.youtube.com/watch?v=J5Pd9vy9hOw
   const handleDropTexture = (acceptedFiles) => {
     // set texture cho tab object được chọn
     if (!acceptedFiles) return;
