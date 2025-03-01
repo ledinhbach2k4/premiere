@@ -1,7 +1,7 @@
 import { ObjectMap, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three"; 
+import * as THREE from "three";
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { Object3DEventMap } from "three";
 
@@ -41,7 +41,7 @@ export default function Model(props: {
   // Tạo AnimationMixer cho toàn bộ scene
   const mixer = useRef<THREE.AnimationMixer | null>(null);
 
-  // set 
+  // set
   const { set } = useThree();
 
   // thời lượng của animation
@@ -74,7 +74,6 @@ export default function Model(props: {
       // Update the state with the new list
       setObjectList((prevList) => [...prevList, ...newObjectList]);
     }
-
   }, [gltf]);
 
   // use effect cho animation
@@ -84,6 +83,7 @@ export default function Model(props: {
    * (update: sẽ chạy animation của toàn bộ scene thay vì animation của từng object)
    *
    */
+
   useEffect(() => {
     if (gltf.cameras.length > 0) {
       const gltfCamera = gltf.cameras[0] as THREE.PerspectiveCamera; // Ép kiểu theo Threejs
@@ -110,32 +110,41 @@ export default function Model(props: {
    * ------- FUNCTION ZONE-------------- FUNCTION ZONE-------------- FUNCTION ZONE-------------- FUNCTION ZONE-------|
    * ----------------------------------------------------------------------------------------------------------------|
    * ----------------------------------------------------------------------------------------------------------------|
-   * 
+   *
    */
 
-  // nếu slider timeline thay đổi thì sẽ chạy cái này
+  const timeRef = useRef(0); // Dùng useRef để lưu giá trị thực tế
 
-
+  // nếu isplay là false thi gan gia tri time cho timeline
   useEffect(() => {
-    if (mixer.current) {
+    if (mixer.current && !props.isPlay) {
+      props.setTime(mixer.current.time); // Cập nhật thời gian khi có thay đổi thực sự
+    }
+  }, [props.isPlay]);
+
+  // update timeline khi kéo vid
+  useEffect(() => {
+    if (mixer.current && !props.isPlay) {
       mixer.current.setTime(props.time); // Cập nhật thời gian khi có thay đổi thực sự
     }
   }, [props.time]);
 
   // Chạy animation mỗi frame
-  useFrame(async (_state, delta) => {
-    if (mixer.current) {
-      if (props.isPlay) {
-        mixer.current.update(delta);
-        if (mixer.current.time >= duration) {
-          mixer.current.setTime(0); // replay
-          props.setTime(0);
-        }
+  useFrame((_state, delta) => {
+    if (mixer.current && props.isPlay) {
+      mixer.current.update(delta);
+      timeRef.current = mixer.current.time;
+
+      // Chỉ update state mỗi 60fps để tránh render liên tục
+      if (Math.abs(props.time - timeRef.current) > 0.06) {
+        props.setTime(timeRef.current);
+      }
+
+      if (mixer.current.time >= duration) {
+        mixer.current.setTime(0);
       }
     }
   });
-
-  
 
   return (
     <>
@@ -148,8 +157,6 @@ export default function Model(props: {
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
-
-
 
       {/* load model từ danh sách những model có thể thay đổi */}
       {objectList.map((obj, index) => (

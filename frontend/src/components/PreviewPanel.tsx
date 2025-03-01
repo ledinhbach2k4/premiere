@@ -14,7 +14,7 @@ import {
   LinearProgress,
   DialogActions,
 } from "@mui/material";
-import { Canvas, ObjectMap } from "@react-three/fiber";
+import { Canvas, events, ObjectMap } from "@react-three/fiber";
 import Model from "./Model";
 import { SyntheticEvent, useCallback, useState } from "react";
 import { IVideo } from "../interface/type";
@@ -40,6 +40,7 @@ export default function PreviewPanel(props: {
   const [progressBar, setProgressBar] = useState<number>(0);
   const [bufferBar, setBufferBar] = useState<number>(0);
   const [totalFrames, setTotalFrame] = useState<number>(0);
+  
 
   // xử lí dialog khi export
   const handleClose = () => {
@@ -56,7 +57,6 @@ export default function PreviewPanel(props: {
 
   // xử lí timeline
   const timelineHandler = (_event: Event, newValue: number | number[]) => {
-    setIsPlay(false);
     setTime(newValue as number);
   };
 
@@ -189,8 +189,6 @@ export default function PreviewPanel(props: {
     }
   };
 
-
-
   return (
     <>
       {isExporting ? (
@@ -311,13 +309,13 @@ export default function PreviewPanel(props: {
       >
         <Box sx={{ width: " 60vh ", display: "flex", alignItems: "center" }}>
           <Typography marginRight={2}>{formatTime(0)}</Typography>
-            <Slider
-              min={0}
-              max={duration}
-              step={0.1}
-              value={time} 
-              onChange={timelineHandler}
-            />
+          <Slider
+            min={0}
+            max={duration}
+            step={0.01}
+            value={time}
+            onChange={timelineHandler}
+          />
           <Typography marginLeft={2}> {formatTime(duration)} </Typography>
         </Box>
 
@@ -330,7 +328,7 @@ export default function PreviewPanel(props: {
           </Button>
           <Button onClick={increaseTime}>
             <KeyboardDoubleArrowRightRoundedIcon />
-          </Button>{" "}
+          </Button>
         </Box>
         <Popover
           id="mouse-over-popover"
