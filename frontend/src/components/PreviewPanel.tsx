@@ -14,9 +14,9 @@ import {
   LinearProgress,
   DialogActions,
 } from "@mui/material";
-import { Canvas, events, ObjectMap } from "@react-three/fiber";
+import { Canvas, events, ObjectMap, useFrame } from "@react-three/fiber";
 import Model from "./Model";
-import { SyntheticEvent, useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IVideo } from "../interface/type";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -26,6 +26,8 @@ import { GLTF } from "three/examples/jsm/Addons.js";
 import MouseOutlinedIcon from "@mui/icons-material/MouseOutlined";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import CaptureWrapper from "./CaptureWrapper";
+import PreviewBackground from "./PreviewBackground";
 
 export default function PreviewPanel(props: {
   _id: string | undefined;
@@ -40,8 +42,6 @@ export default function PreviewPanel(props: {
   const [progressBar, setProgressBar] = useState<number>(0);
   const [bufferBar, setBufferBar] = useState<number>(0);
   const [totalFrames, setTotalFrame] = useState<number>(0);
-  
-
   // xử lí dialog khi export
   const handleClose = () => {
     setIsExporting(false);
@@ -85,113 +85,149 @@ export default function PreviewPanel(props: {
   };
   const open = Boolean(anchorEl);
 
+  // ccapture
+  const canvasRef = useRef();
+  const capturer = useRef();
+  useEffect(() => {
+    capturer.current = new CCapture({
+      format: "webm",
+      framerate: 60,
+      verbose: true,
+      quality: 100,
+      display: true,
+      width: 1920,
+      height: 1080,
+    });
+  }, []);
+
+  const startCapture = () => {
+    setIsExporting(true);
+    setTime(0);
+    setIsPlay(false);
+    // wait 0.5 sec to change the frame size
+    setTimeout(() => {
+      setIsPlay(true);
+      capturer.current.start();
+    }, 500);
+  };
+  const stopCapture = useCallback(() => {
+    setIsExporting(false);
+    capturer.current.stop();
+    capturer.current.save();
+  }, []);
+
+  useEffect(() => {
+    if (isExporting && time >= duration) {
+      stopCapture();
+    }
+  }, [time, duration, isExporting, stopCapture]);
   // SIÊU XUẤT - Supa cum
-  const ffmpeg = new FFmpeg();
+  // const ffmpeg = new FFmpeg();
 
   // log ffmpeg
-  ffmpeg.on("progress", (e) => {
-    setProgressBar(e.progress * 100);
-  });
+  // ffmpeg.on("progress", (e) => {
+  //   setProgressBar(e.progress * 100);
+  // });
 
-  const loadFFmpeg = async () => {
-    if (!ffmpeg.loaded) {
-      await ffmpeg.load();
-      console.log("FFmpeg loaded successfully");
-    }
-  };
+  // const loadFFmpeg = async () => {
+  //   if (!ffmpeg.loaded) {
+  //     await ffmpeg.load();
+  //     console.log("FFmpeg loaded successfully");
+  //   }
+  // };
 
   // export thành video
-  const exportVideo = async () => {
-    try {
-      setIsExporting(true);
+  // const exportVideo = async () => {
+  //   try {
+  //     setIsExporting(true);
 
-      await loadFFmpeg();
+  //     await loadFFmpeg();
 
-      // đảm bảo load được canvas
-      const canvas = document.querySelector("canvas");
-      if (!canvas) {
-        console.error("Canvas không tìm thấy!");
-        return;
-      }
+  //     // đảm bảo load được canvas
+  //     const canvas = document.querySelector("canvas");
+  //     if (!canvas) {
+  //       console.error("Canvas không tìm thấy!");
+  //       return;
+  //     }
 
-      const frameRate = 60; // FPS
-      const totalFrames = frameRate * duration;
-      setTotalFrame(totalFrames);
-      console.log(totalFrames);
-      const frames: string[] = [];
-      const calUnit = 100 / totalFrames;
-      const previewContainer = document.getElementById("previewContainer");
-      const previewImage = document.createElement("img");
-      previewImage.style.width = "160px";
-      previewImage.style.height = "90px";
+  //     const frameRate = 60; // FPS
+  //     const totalFrames = frameRate * duration;
+  //     setTotalFrame(totalFrames);
+  //     console.log(totalFrames);
+  //     const frames: string[] = [];
+  //     const calUnit = 100 / totalFrames;
+  //     const previewContainer = document.getElementById("previewContainer");
+  //     const previewImage = document.createElement("img");
+  //     previewImage.style.width = "160px";
+  //     previewImage.style.height = "90px";
 
-      previewContainer?.appendChild(previewImage);
+  //     previewContainer?.appendChild(previewImage);
 
-      for (let i = 0; i <= totalFrames; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
+  //     for (let i = 0; i <= totalFrames; i++) {
+  //       await new Promise((resolve) => setTimeout(resolve, 1000 / frameRate));
 
-        const dataURL = canvas.toDataURL("image/png");
-        const blob = await (await fetch(dataURL)).blob();
-        const fileName = `frame_${i.toString().padStart(4, "0")}.png`;
-        setBufferBar((prev) => prev + calUnit);
-        previewImage.src = dataURL;
+  //       const dataURL = canvas.toDataURL("image/png");
+  //       const blob = await (await fetch(dataURL)).blob();
+  //       const fileName = `frame_${i.toString().padStart(4, "0")}.png`;
+  //       setBufferBar((prev) => prev + calUnit);
+  //       previewImage.src = dataURL;
 
-        try {
-          await ffmpeg.writeFile(fileName, await fetchFile(blob));
-          frames.push(fileName);
-        } catch (error) {
-          console.error(`Lỗi khi ghi file ${fileName}:`, error);
-        }
-      }
+  //       try {
+  //         await ffmpeg.writeFile(fileName, await fetchFile(blob));
+  //         frames.push(fileName);
+  //       } catch (error) {
+  //         console.error(`Lỗi khi ghi file ${fileName}:`, error);
+  //       }
+  //     }
 
-      try {
-        // Chuyển đổi png → MP4
-        await ffmpeg.exec([
-          "-progress",
-          "log.txt",
-          "-framerate",
-          `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
-          "-i",
-          "frame_%04d.png", // Định dạng tên file đầu vào
-          "-c:v",
-          "libx264", // Sử dụng codec H.264
-          "-pix_fmt",
-          "yuv420p", // Định dạng pixel
-          "-crf",
-          "1", // Chất lượng video
-          "output.mp4", // Tên file video đầu ra
-        ]);
-      } catch (error) {
-        console.error("Lỗi khi chạy FFmpeg exec:", error);
-      }
+  //     try {
+  //       // Chuyển đổi png → MP4
+  //       await ffmpeg.exec([
+  //         "-progress",
+  //         "log.txt",
+  //         "-framerate",
+  //         `${frameRate}`, // Thiết lập tốc độ khung hình (FPS)
+  //         "-i",
+  //         "frame_%04d.png", // Định dạng tên file đầu vào
+  //         "-c:v",
+  //         "libx264", // Sử dụng codec H.264
+  //         "-pix_fmt",
+  //         "yuv420p", // Định dạng pixel
+  //         "-crf",
+  //         "1", // Chất lượng video
+  //         "output.mp4", // Tên file video đầu ra
+  //       ]);
+  //     } catch (error) {
+  //       console.error("Lỗi khi chạy FFmpeg exec:", error);
+  //     }
 
-      // Đọc dữ liệu video
-      const data = await ffmpeg.readFile("output.mp4");
-      const buffer = data as Uint8Array;
+  //     // Đọc dữ liệu video
+  //     const data = await ffmpeg.readFile("output.mp4");
+  //     const buffer = data as Uint8Array;
 
-      // Tạo Object URL để tải về
-      const url = URL.createObjectURL(
-        new Blob([buffer], { type: "video/mp4" })
-      );
+  //     // Tạo Object URL để tải về
+  //     const url = URL.createObjectURL(
+  //       new Blob([buffer], { type: "video/mp4" })
+  //     );
 
-      // Tạo link tải về
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "output.mp4";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+  //     // Tạo link tải về
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = "output.mp4";
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     document.body.removeChild(a);
 
-      // đóng dialog
-      handleClose();
-    } catch (error) {
-      console.error("Lỗi trong quá trình export video:", error);
-    }
-  };
+  //     // đóng dialog
+  //     handleClose();
+  //   } catch (error) {
+  //     console.error("Lỗi trong quá trình export video:", error);
+  //   }
+  // };
 
   return (
     <>
-      {isExporting ? (
+      {/* {isExporting ? (
         <>
           <Dialog open={isExporting} maxWidth="sm" fullWidth>
             <DialogTitle> Exporting Video </DialogTitle>
@@ -216,15 +252,15 @@ export default function PreviewPanel(props: {
             </DialogActions>
           </Dialog>
         </>
-      ) : null}
+      ) : null} */}
 
-      <Button onClick={exportVideo}>export</Button>
+      <Button onClick={startCapture}>EXPORT</Button>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          width: "100vh",
-          height: "56.25vh",
+          width: isExporting ? 1920 : "100vh",
+          height: isExporting ? 1080 : "56.25vh",
           padding: 0.5,
         }}
       >
@@ -258,21 +294,25 @@ export default function PreviewPanel(props: {
             alignItems: "center",
             backgroundColor: "#1e1e1e",
             borderRadius: 2,
-            overflow: "hidden", // Ensures the canvas fits within the Paper
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)", // Shadow for depth
+            overflow: "hidden",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
           }}
         >
           {props.vidData ? (
             <>
               <Canvas
                 id="canvas"
-                gl={{ preserveDrawingBuffer: true }}
-                style={{
-                  width: isExporting ? "1920px" : "100%",
-                  height: isExporting ? "1080px" : "100%",
-                  backgroundColor: "#000",
+                ref={canvasRef}
+                gl={{
+                  preserveDrawingBuffer: true,
                 }}
               >
+                <CaptureWrapper
+                  isExporting={isExporting}
+                  capturer={capturer.current}
+                  canvasRef={canvasRef}
+                />
+
                 <Model
                   _id={props.vidData?._id}
                   model={props.model}
@@ -282,6 +322,7 @@ export default function PreviewPanel(props: {
                   setDuration={setDuration}
                   isOrbitControl={isOrbitControl}
                 />
+                <PreviewBackground color={"#1e1e1e"} />
               </Canvas>
             </>
           ) : (

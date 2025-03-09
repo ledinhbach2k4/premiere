@@ -1,22 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import {config} from 'dotenv'
-
-
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { config } from "dotenv";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env': process.env
+    "process.env": process.env,
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:3000'
-    }
+      "/api": "http://localhost:3000",
+    },
   },
-  optimizeDeps: {
-    exclude: ["@ffmpeg/ffmpeg"]
-  },
-})
-
+});

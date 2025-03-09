@@ -23,7 +23,6 @@
     "@react-three/fiber": "^8.17.12",
     "axios": "^1.7.9",
     "canvas-capture": "^2.1.1",
-    "ccapture.js": "^1.1.0",
     "dotenv": "^16.4.7",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",

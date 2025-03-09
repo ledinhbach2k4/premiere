@@ -31,6 +31,8 @@ export default function Model(props: {
   setTime: React.Dispatch<React.SetStateAction<number>>;
   setDuration: React.Dispatch<React.SetStateAction<number>>;
   isOrbitControl: boolean;
+  isExporting: boolean;
+  capturer: any;
 }) {
   // tải lên model
   const gltf = props.model;
@@ -59,6 +61,7 @@ export default function Model(props: {
    * hiện tại là lặp qua toàn bộ object rồi lựa object cha để bỏ vào danh sách
    *
    */
+  
   useEffect(() => {
     if (gltf) {
       // tạo 1 list temp
@@ -145,7 +148,11 @@ export default function Model(props: {
       }
     }
   });
-
+  // useFrame((state) => {
+  //   if (props.isExporting) {
+  //     props.capturer.capture(state.gl.domElement);
+  //   }
+  // })
   return (
     <>
       {/* ánh sáng */}
