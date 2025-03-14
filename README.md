@@ -1,6 +1,5 @@
 **Giới thiệu**
-
-Dự án này nhằm mục đích phát triển một website chuyển đổi các định dạng tập tin GLTF, Three.js, Premiere và After Effects thành định dạng video MP4. Công cụ này sẽ giúp người dùng dễ dàng chuyển đổi các mô hình 3D và video động thành định dạng phổ biến, dễ chia sẻ và phát lại trên nhiều nền tảng.
+Kiểu random idea lúc 12h
 
 **Nội dung**
 ![image](https://github.com/user-attachments/assets/b4db3555-3156-49d9-933b-02aa698d15d3)
